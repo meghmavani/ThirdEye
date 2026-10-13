@@ -77,7 +77,11 @@ def _turn(img: np.ndarray, degrees: int) -> np.ndarray:
 
 
 class PieceMatcher:
-    """Matches patches against one puzzle's box picture."""
+    """Matches patches against one puzzle's box picture.
+
+    `rotations` is the turns searched; all four by default. Restricting it to `(0,)` is
+    the no-rotation-search ablation of EV-AB-10, never a production setting.
+    """
 
     def __init__(
         self,
@@ -87,6 +91,7 @@ class PieceMatcher:
         size: int = 32,
         min_margin: float = 0.08,
         min_score: float = 0.5,
+        rotations: tuple[int, ...] = ROTATIONS,
     ):
         if box.ndim == 2:
             box = cv2.cvtColor(box, cv2.COLOR_GRAY2BGR)
@@ -99,7 +104,7 @@ class PieceMatcher:
             for col in range(cols):
                 cell = box[row * h // rows:(row + 1) * h // rows,
                            col * w // cols:(col + 1) * w // cols]
-                for rot in ROTATIONS:
+                for rot in rotations:
                     rows_.append(_descriptor(_turn(cell, rot), size))
                     self.labels.append((piece_id(col, row), rot))
         self._refs = np.stack(rows_)  # (4 * cells, D)

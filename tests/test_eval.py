@@ -189,3 +189,28 @@ def test_the_oracle_command_reports_the_targets(capsys) -> None:
     assert ce.main(["--oracle"]) == 0
     out = capsys.readouterr().out
     assert "step accuracy 1.00" in out and "error taxonomy: none" in out
+
+
+# --- the synthetic perception ablations and the latency benchmark ------------------------
+
+def test_the_synthetic_ablations_show_what_a_second_camera_and_rotation_search_buy() -> None:
+    from eval.perception_synthetic import jenga_ablation, jigsaw_ablation
+
+    jenga = {r["config"]: r for r in jenga_ablation(towers=2)}
+    assert jenga["both corners"]["unobserved"] <= jenga["corner A only"]["unobserved"]
+    assert jenga["both corners"]["accuracy_among_observed"] > 0.97
+
+    jig = {r["config"]: r for r in jigsaw_ablation(puzzles=1)}
+    with_search, without = jig["with rotation search"], jig["without rotation search"]
+    assert with_search["unidentified_rate"] < without["unidentified_rate"]
+    assert with_search["accuracy_among_identified"] == 1.0
+
+
+def test_the_latency_table_lists_unmeasured_stages_rather_than_omitting_them() -> None:
+    from eval.latency import measure, table
+
+    rows = measure(repeat=3)
+    text = table(rows)
+    assert "not measured" in text and "NFR-PERF-3" in text
+    measured = [r for r in rows if r.median_ms is not None]
+    assert measured and all(r.median_ms >= 0 for r in measured)

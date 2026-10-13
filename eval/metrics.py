@@ -171,10 +171,10 @@ def slot_accuracy(
     if height == 0 or width == 0:
         return 1.0
     right = 0
-    for l in range(height):
+    for layer in range(height):
         for s in range(width):
-            p = predicted[l][s] if l < len(predicted) and s < len(predicted[l]) else 0
-            t = truth[l][s] if l < len(truth) and s < len(truth[l]) else 0
+            p = predicted[layer][s] if layer < len(predicted) and s < len(predicted[layer]) else 0
+            t = truth[layer][s] if layer < len(truth) and s < len(truth[layer]) else 0
             right += int(bool(p) == bool(t))
     return right / (height * width)
 

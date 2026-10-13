@@ -81,10 +81,6 @@ def measure(repeat: int = 30) -> list[Row]:
     # Jigsaw: board read + match on hand-exit.
     cols, rows_ = 4, 3
     box = box_picture(cols, rows_)
-    cal = Calibrator(__import__("tests.jigsaw_layout", fromlist=["x"]).layout(cols, rows_)) \
-        if False else None
-    from eval.synth_jigsaw import layout
-
     cal = Calibrator(layout(cols, rows_))
     empty = camera_view(flat_board(box, cols, rows_))
     h = cal.update(empty).homography

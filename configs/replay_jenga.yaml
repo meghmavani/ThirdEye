@@ -1,0 +1,3 @@
+# A scripted Jenga game through the real tracker and checker; no hardware.
+mode: replay
+script: ../scripts/scenarios/jenga_fouls.yaml

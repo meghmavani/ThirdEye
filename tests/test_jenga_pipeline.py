@@ -132,7 +132,6 @@ def test_a_hand_across_the_view_for_a_moment_is_not_a_collapse() -> None:
 
 
 def test_recorded_rgbd_frames_replay_through_the_same_pipeline(tmp_path: Path) -> None:
-    g = Game()
     occ_after = without(full(), (5, 1))
     for i, occ in enumerate([full()] * 3 + [occ_after] * 8):
         for c, cam in enumerate(CAMS):

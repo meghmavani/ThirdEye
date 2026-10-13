@@ -155,7 +155,7 @@ class TowerReading:
         return self.obs.get((layer, slot), SlotObs("unobserved"))
 
     def unobserved(self) -> set[Slot]:
-        return {Slot(l, s) for (l, s), o in self.obs.items() if o.state == "unobserved"}
+        return {Slot(layer, s) for (layer, s), o in self.obs.items() if o.state == "unobserved"}
 
     def observed_fraction(self) -> float:
         total = self.layers * self.slots
@@ -284,8 +284,8 @@ class TowerReader:
         self.layers, self.slots, self.extra = layers, slots, extra_layers
         self.reader = SlotReader(cameras, layers + extra_layers, slots, thresholds, use_colour)
         #: Standard start: the built tower full, nothing above it.
-        self.belief = [[1] * slots if l < layers else [0] * slots
-                       for l in range(layers + extra_layers)]
+        self.belief = [[1] * slots if layer < layers else [0] * slots
+                       for layer in range(layers + extra_layers)]
 
     def update(self, frames: list[RGBDFrame | None]) -> TowerUpdate:
         """Read, merge into the belief, and report. Unobserved slots keep their belief."""

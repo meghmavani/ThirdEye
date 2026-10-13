@@ -1,0 +1,8 @@
+# Live jigsaw: one overhead webcam over a board with four ArUco markers (plan 2.2).
+# Paths are relative to this file.
+mode: jigsaw
+spec: ../specs/jigsaw_forest_12.json
+box: ../data/forest_box.png        # the box picture, cropped to the puzzle (not committed)
+camera: 0
+serve: 8000                        # browser UI on http://127.0.0.1:8000/
+log: ../runs/jigsaw_last.json

@@ -1,0 +1,11 @@
+# Jenga from recorded RGB-D cameras at opposite corners of the tower (plan 2.2).
+# Record with the iPhone (Record3D) and a second camera; see thirdeye/perception/depth.py.
+mode: jenga
+spec: ../specs/jenga.json
+camera_dirs:
+  - ../data/jenga/cam0             # the iPhone, colour + depth
+  - ../data/jenga/cam1             # the second camera, opposite corner
+rig: ../data/jenga/rig.json        # saved poses; delete this line and add `save_rig:` to recalibrate
+offset: 0.0                        # seconds camera 1's clock reads ahead (sync.estimate_offset)
+serve: 8000
+log: ../runs/jenga_last.json

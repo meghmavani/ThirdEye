@@ -32,8 +32,8 @@ CAM2 = corner_camera(+1, +1)
 
 def truth(occ: list[list[int]], layers: int = 22) -> dict[tuple[int, int], str]:
     return {
-        (l, s): "occupied" if l < len(occ) and occ[l][s] else "empty"
-        for l in range(layers) for s in range(3)
+        (layer, s): "occupied" if layer < len(occ) and occ[layer][s] else "empty"
+        for layer in range(layers) for s in range(3)
     }
 
 
