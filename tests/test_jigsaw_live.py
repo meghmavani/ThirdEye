@@ -10,7 +10,7 @@ from pathlib import Path
 
 import cv2
 import pytest
-from jigsaw_synthetic import box_picture, camera_view, flat_board
+from eval.synth_jigsaw import box_picture, camera_view, flat_board
 
 from thirdeye.compiler.schema import JigsawSpec, load_spec
 from thirdeye.live_jigsaw import build_pipeline, main

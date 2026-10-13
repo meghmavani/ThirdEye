@@ -10,7 +10,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from tower_synthetic import corner_camera, full, render, with_block, without
+from eval.synth_tower import corner_camera, full, render, with_block, without
 
 from thirdeye.compiler.schema import ConstraintSpec, load_spec
 from thirdeye.perception.depth import RecordedRGBD, save_frame
@@ -166,3 +166,17 @@ def test_the_command_line_replays_recorded_cameras_with_a_saved_rig(tmp_path: Pa
                  "--no-hands", "--log", str(log)])
     out = capsys.readouterr().out
     assert code == 0 and "illegal_source_layer" in out and log.exists()
+
+
+def test_serving_the_ui_alongside_a_recorded_replay_does_not_disturb_it(tmp_path: Path, capsys) -> None:
+    from thirdeye.live_jenga import main, save_rig
+
+    save_rig(tmp_path / "rig.json", CAMS)
+    states = [full()] * 5 + [without(full(), (17, 1))] * 8
+    for c, cam in enumerate(CAMS):
+        for i, occ in enumerate(states):
+            save_frame(tmp_path / f"cam{c}" / f"{i:04d}.npz", render(cam, occ, t=i * DT))
+    code = main(["--spec", str(SPEC), "--camera-dir", str(tmp_path / "cam0"),
+                 "--camera-dir", str(tmp_path / "cam1"), "--rig", str(tmp_path / "rig.json"),
+                 "--no-hands", "--serve", "18765"])
+    assert code == 0 and "UI on http://127.0.0.1:18765/" in capsys.readouterr().out

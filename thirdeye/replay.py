@@ -51,6 +51,7 @@ from __future__ import annotations
 import argparse
 import re
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -160,6 +161,9 @@ class Replay:
     end: float | None = None
     #: Alerts in the order they were raised, for the demo printout.
     raised: list[Alert] = field(default_factory=list, init=False)
+    #: Called with the scene time after every pump -- how the server paces a
+    #: scripted session and publishes its state as it unfolds.
+    on_tick: Callable[[float], None] | None = None
 
     @classmethod
     def load(cls, path: str | Path) -> Replay:
@@ -189,6 +193,10 @@ class Replay:
         self.raised += self.session.finish(end)
         return SessionRecord.of(self.session)
 
+    def _tick(self, t: float) -> None:
+        if self.on_tick is not None:
+            self.on_tick(t)
+
     def _end(self) -> float:
         if self.end is not None:
             return float(self.end)
@@ -215,6 +223,7 @@ class Replay:
             while t < stop - 1e-9:
                 state.observe(t, bricks, hands_present=hands)
                 self.raised += self.session.pump()
+                self._tick(t)
                 t += dt
 
     def _film_jigsaw(self) -> None:
@@ -238,6 +247,7 @@ class Replay:
             while t < stop - 1e-9:
                 state.observe(t, pieces, hands_present=hands)
                 self.raised += self.session.pump()
+                self._tick(t)
                 t += dt
 
     def _film_jenga(self) -> None:
@@ -270,6 +280,7 @@ class Replay:
                 hands = key.get("hands")
                 state.observe(rows, t=t, hands_in_contact=None if hands is None else int(hands))
                 self.raised += self.session.pump()
+                self._tick(t)
 
 
 def main(argv: list[str] | None = None) -> int:

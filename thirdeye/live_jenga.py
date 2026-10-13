@@ -82,6 +82,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--save-rig", type=Path, default=None, help="write the calibrated poses here")
     ap.add_argument("--no-hands", action="store_true")
     ap.add_argument("--log", type=Path, default=None)
+    ap.add_argument("--serve", type=int, default=None, metavar="PORT",
+                    help="also serve the browser UI on this port (state and alerts only)")
     args = ap.parse_args(argv)
 
     spec = load_spec(args.spec)
@@ -104,6 +106,14 @@ def main(argv: list[str] | None = None) -> int:
         hand_counter=None if args.no_hands else make_hand_counter(cameras),
     )
 
+    publisher = None
+    if args.serve:
+        from thirdeye.server.app import serve_in_thread
+
+        publisher = serve_in_thread(args.serve)
+        publisher.start(spec.procedure, "recorded cameras")
+        print(f"UI on http://127.0.0.1:{args.serve}/", flush=True)
+
     lead = sources[0]
     dt = float(np.median(np.diff([f.t for f in lead]))) if len(lead) > 1 else 0.1
     partners = [
@@ -118,11 +128,16 @@ def main(argv: list[str] | None = None) -> int:
             j = pairs[i][1]
             frames.append(None if j is None else other[j])
         t = frame.t
-        for alert in pipe.process(t, frames):
+        alerts = pipe.process(t, frames)
+        for alert in alerts:
             print(alert, flush=True)
+        if publisher is not None and pipe.readings:
+            publisher.update(session, t)
 
     for alert in session.finish(t):
         print(alert)
+    if publisher is not None:
+        publisher.finish(session, t, "recorded cameras")
     print()
     print(session.summary())
     print(pipe.timings.table())

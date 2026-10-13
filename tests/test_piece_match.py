@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 import pytest
 
-from jigsaw_synthetic import (
+from eval.synth_jigsaw import (
     MARGIN,
     PX,
     box_picture,

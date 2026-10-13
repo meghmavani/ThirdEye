@@ -7,7 +7,7 @@ import time
 import cv2
 import numpy as np
 import pytest
-from tower_synthetic import (
+from eval.synth_tower import (
     K,
     corner_camera,
     full,

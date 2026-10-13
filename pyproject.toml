@@ -45,6 +45,9 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 include = ["thirdeye*", "eval*"]
 
+[tool.setuptools.package-data]
+thirdeye = ["server/static/*.html"]
+
 [tool.ruff]
 line-length = 100
 target-version = "py311"

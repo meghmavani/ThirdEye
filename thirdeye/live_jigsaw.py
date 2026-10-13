@@ -115,6 +115,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--no-show", action="store_true")
     ap.add_argument("--seconds", type=float, default=None)
     ap.add_argument("--log", type=Path, default=None)
+    ap.add_argument("--serve", type=int, default=None, metavar="PORT",
+                    help="also serve the browser UI on this port (state and alerts only)")
     args = ap.parse_args(argv)
 
     spec = load_spec(args.spec)
@@ -127,6 +129,13 @@ def main(argv: list[str] | None = None) -> int:
     session = Session(spec)
     assert isinstance(session.state, PieceGridState)
     pipeline = build_pipeline(spec, box, hands=not args.no_hands)
+    publisher = None
+    if args.serve:
+        from thirdeye.server.app import serve_in_thread
+
+        publisher = serve_in_thread(args.serve)
+        publisher.start(spec.procedure, "live camera")
+        print(f"UI on http://127.0.0.1:{args.serve}/", flush=True)
 
     cap = cv2.VideoCapture(str(args.video) if args.video else args.camera)
     if not cap.isOpened():
@@ -148,6 +157,8 @@ def main(argv: list[str] | None = None) -> int:
                 for alert in session.pump():
                     print(alert, flush=True)
                     recent.append(str(alert))
+                if publisher is not None:
+                    publisher.update(session, t)
             if not args.no_show:
                 cv2.imshow("ThirdEye", draw(frame, result, session, recent, spec))
                 if cv2.waitKey(1) & 0xFF == ord("q"):
@@ -163,6 +174,8 @@ def main(argv: list[str] | None = None) -> int:
 
     for alert in session.finish(t):
         print(alert)
+    if publisher is not None:
+        publisher.finish(session, t, "live camera")
     elapsed = time.monotonic() - start
     print()
     print(session.summary())
