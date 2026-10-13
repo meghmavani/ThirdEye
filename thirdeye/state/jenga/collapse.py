@@ -54,6 +54,13 @@ class CollapseDetector:
     def collapsed(self) -> bool:
         return self.t_collapse is not None
 
+    @property
+    def suspect(self) -> bool:
+        """A drop has been seen and not yet confirmed or dismissed. Readings taken
+        now should not reach the lattice: they may be a fallen tower, and an
+        unconfirmed one must not be reported as fifty blocks pulled."""
+        return self._pending is not None
+
     def feed(self, t: float, height_mm: float | None) -> bool:
         """One frame's measured tower height. True on the frame a collapse is confirmed.
 
