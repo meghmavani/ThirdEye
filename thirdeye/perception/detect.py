@@ -29,8 +29,8 @@ from typing import Any, Protocol
 import cv2
 import numpy as np
 
-from stepwise.compiler.schema import PartRef, Rotation
-from stepwise.state.lego.grid import Reading, StudGrid, rotation_from_extent
+from thirdeye.compiler.schema import PartRef, Rotation
+from thirdeye.state.lego.grid import Reading, StudGrid, rotation_from_extent
 
 
 @dataclass(frozen=True)

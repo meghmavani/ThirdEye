@@ -6,7 +6,7 @@ every name it mentions must come from the fixed predicate vocabulary below --
 the same vocabulary the compiler prompt hands the model.
 
 This module only *checks* expressions. Evaluation against live state is the
-checker's job (FR-CHK-1) and lives in stepwise/checker/.
+checker's job (FR-CHK-1) and lives in thirdeye/checker/.
 """
 
 from __future__ import annotations

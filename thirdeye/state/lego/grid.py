@@ -18,7 +18,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from dataclasses import dataclass
 
-from stepwise.compiler.schema import PartRef, Pose, Rotation
+from thirdeye.compiler.schema import PartRef, Pose, Rotation
 
 #: A 3x3 pixel -> stud homography. A nested sequence or a NumPy array both work;
 #: taking it structurally keeps this module free of a NumPy import.

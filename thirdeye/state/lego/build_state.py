@@ -23,10 +23,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from stepwise.compiler.schema import PartRef, Pose
-from stepwise.events import Event
-from stepwise.state.base import WorldState
-from stepwise.state.lego.grid import Reading, StudGrid, pose_matches
+from thirdeye.compiler.schema import PartRef, Pose
+from thirdeye.events import Event
+from thirdeye.state.base import WorldState
+from thirdeye.state.lego.grid import Reading, StudGrid, pose_matches
 
 Cell = tuple[int, int, int]
 

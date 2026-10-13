@@ -1,8 +1,8 @@
 """The live session: camera in, checklist and alerts out (FR-SYS-1, FR-UI-4, plan 4.5).
 
-    python -m stepwise.live --spec specs/model_a.json --zero-shot
-    python -m stepwise.live --spec specs/model_a.json --weights runs/detect/best.pt
-    python -m stepwise.live --spec specs/model_a.json --zero-shot --video run07.mp4 --no-show
+    python -m thirdeye.live --spec specs/model_a.json --zero-shot
+    python -m thirdeye.live --spec specs/model_a.json --weights runs/detect/best.pt
+    python -m thirdeye.live --spec specs/model_a.json --zero-shot --video run07.mp4 --no-show
 
 The camera is read here, in the Python process (FR-UI-4); nothing travels to a
 browser but what is drawn. This is the terminal-and-window version of the demo:
@@ -26,17 +26,17 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from stepwise.compiler.schema import DagSpec, load_spec
-from stepwise.perception.calibrate import Calibrator, MarkerLayout
-from stepwise.perception.detect import Detector, YoloDetector, ZeroShotDetector
-from stepwise.perception.hands import DEFAULT_MODEL, HandDetector
+from thirdeye.compiler.schema import DagSpec, load_spec
+from thirdeye.perception.calibrate import Calibrator, MarkerLayout
+from thirdeye.perception.detect import Detector, YoloDetector, ZeroShotDetector
+from thirdeye.perception.hands import DEFAULT_MODEL, HandDetector
 
 MODELS = DEFAULT_MODEL.parent
-from stepwise.perception.pipeline import FrameResult, TopDownPipeline
-from stepwise.session import Session
-from stepwise.sessionlog import SessionRecord
-from stepwise.state.lego.build_state import BuildState
-from stepwise.state.lego.grid import StudGrid, extent
+from thirdeye.perception.pipeline import FrameResult, TopDownPipeline
+from thirdeye.session import Session
+from thirdeye.sessionlog import SessionRecord
+from thirdeye.state.lego.build_state import BuildState
+from thirdeye.state.lego.grid import StudGrid, extent
 
 RED, YELLOW, GREEN, CYAN, WHITE = (40, 40, 230), (0, 210, 255), (60, 200, 60), (230, 200, 0), \
     (240, 240, 240)
@@ -160,7 +160,7 @@ def main(argv: list[str] | None = None) -> int:
                     print(alert, flush=True)
                     recent.append(str(alert))
             if not args.no_show:
-                cv2.imshow("STEPWISE", draw(frame, result, session, recent, grid))
+                cv2.imshow("ThirdEye", draw(frame, result, session, recent, grid))
                 if cv2.waitKey(1) & 0xFF == ord("q"):
                     break
             if args.seconds is not None and t >= args.seconds:

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from stepwise.compiler.schema import (
+from thirdeye.compiler.schema import (
     Baseplate,
     ConstraintSpec,
     DagSpec,

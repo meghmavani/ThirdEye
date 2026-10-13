@@ -18,21 +18,21 @@ move; the pairer that joins the halves sits between the two (see
 
 Perception plugs in above: call the tracker's own `observe` with each frame's
 detections, then `pump` to get the alerts. Nothing here touches a camera, so a
-whole session can be replayed from a script -- see `stepwise/replay.py`.
+whole session can be replayed from a script -- see `thirdeye/replay.py`.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from stepwise.checker.engine import Checker
-from stepwise.checker.rules_jenga import MovePairer
-from stepwise.compiler.schema import ConstraintSpec, DagSpec
-from stepwise.events import Alert, Event, LogEntry, Status
-from stepwise.state.base import WorldState
-from stepwise.state.jenga.lattice import TowerLattice
-from stepwise.state.lego.build_state import BuildState
-from stepwise.state.lego.grid import StudGrid
+from thirdeye.checker.engine import Checker
+from thirdeye.checker.rules_jenga import MovePairer
+from thirdeye.compiler.schema import ConstraintSpec, DagSpec
+from thirdeye.events import Alert, Event, LogEntry, Status
+from thirdeye.state.base import WorldState
+from thirdeye.state.jenga.lattice import TowerLattice
+from thirdeye.state.lego.build_state import BuildState
+from thirdeye.state.lego.grid import StudGrid
 
 
 def state_for(spec: DagSpec | ConstraintSpec) -> WorldState:

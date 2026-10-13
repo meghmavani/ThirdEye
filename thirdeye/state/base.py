@@ -18,7 +18,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable, Mapping
 from typing import Any
 
-from stepwise.events import Event, Reverification
+from thirdeye.events import Event, Reverification
 
 
 class WorldState(ABC):

@@ -23,7 +23,7 @@ from pathlib import Path
 
 import yaml
 
-from stepwise.compiler.schema import DagSpec, PartRef, Pose, Step, load_spec
+from thirdeye.compiler.schema import DagSpec, PartRef, Pose, Step, load_spec
 
 #: Seconds a hand is over the plate per step, and the pause after it.
 REACH_S = 1.0

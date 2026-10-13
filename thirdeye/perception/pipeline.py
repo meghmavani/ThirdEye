@@ -21,10 +21,10 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from stepwise.perception.calibrate import Calibration, Calibrator
-from stepwise.perception.detect import Detection, Detector, to_readings
-from stepwise.perception.hands import Hand, HandDetector, over_workspace
-from stepwise.state.lego.grid import Reading, StudGrid
+from thirdeye.perception.calibrate import Calibration, Calibrator
+from thirdeye.perception.detect import Detection, Detector, to_readings
+from thirdeye.perception.hands import Hand, HandDetector, over_workspace
+from thirdeye.state.lego.grid import Reading, StudGrid
 
 
 @dataclass

@@ -9,11 +9,11 @@ from __future__ import annotations
 
 import pytest
 
-from stepwise.checker.engine import Checker, SpecNotRunnable
-from stepwise.checker.rules_jenga import MovePairer
-from stepwise.compiler.schema import ConstraintSpec
-from stepwise.events import Event, Slot
-from stepwise.state.jenga.lattice import (
+from thirdeye.checker.engine import Checker, SpecNotRunnable
+from thirdeye.checker.rules_jenga import MovePairer
+from thirdeye.compiler.schema import ConstraintSpec
+from thirdeye.events import Event, Slot
+from thirdeye.state.jenga.lattice import (
     TowerLattice,
     empty_tower,
     full_tower,

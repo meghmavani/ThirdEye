@@ -14,8 +14,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
-from stepwise.compiler.expr import check_expr
-from stepwise.compiler.schema import ConstraintSpec, DagSpec, Step
+from thirdeye.compiler.expr import check_expr
+from thirdeye.compiler.schema import ConstraintSpec, DagSpec, Step
 
 Severity = Literal["error", "warning"]
 
@@ -242,9 +242,9 @@ def _check_satisfiable(spec: ConstraintSpec) -> list[Problem]:
 def _has_legal_opening(spec: ConstraintSpec) -> bool:
     # Imported here: the validator needs a state model to simulate against, but
     # nothing else in the compiler should depend on one.
-    from stepwise.checker.evaluate import Environment, EvalError, evaluate
-    from stepwise.events import Slot
-    from stepwise.state.jenga.lattice import TowerLattice, full_tower
+    from thirdeye.checker.evaluate import Environment, EvalError, evaluate
+    from thirdeye.events import Slot
+    from thirdeye.state.jenga.lattice import TowerLattice, full_tower
 
     layers, slots = spec.tower.layers, spec.tower.slots_per_layer
     lattice = TowerLattice(initial=full_tower(layers, slots), slots_per_layer=slots)

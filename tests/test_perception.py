@@ -12,18 +12,18 @@ import numpy as np
 import pytest
 from synthetic import LAYOUT, STUDS, brick_box, scene, to_pixels
 
-from stepwise.compiler.schema import PartRef, Pose
-from stepwise.perception.calibrate import Calibrator
-from stepwise.perception.detect import (
+from thirdeye.compiler.schema import PartRef, Pose
+from thirdeye.perception.calibrate import Calibrator
+from thirdeye.perception.detect import (
     Detection,
     dominant_color,
     part_from_class,
     size_from_extent,
     to_readings,
 )
-from stepwise.perception.hands import Hand, hands_in_contact, is_grasping, over_workspace
-from stepwise.perception.pipeline import TopDownPipeline
-from stepwise.state.lego.grid import StudGrid
+from thirdeye.perception.hands import Hand, hands_in_contact, is_grasping, over_workspace
+from thirdeye.perception.pipeline import TopDownPipeline
+from thirdeye.state.lego.grid import StudGrid
 
 GRID = StudGrid(STUDS, STUDS)
 BRICKS = [

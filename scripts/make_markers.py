@@ -17,8 +17,8 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from stepwise.perception.calibrate import MarkerLayout
-from stepwise.state.lego.grid import STUD_PITCH_MM
+from thirdeye.perception.calibrate import MarkerLayout
+from thirdeye.state.lego.grid import STUD_PITCH_MM
 
 DPI = 300
 A4_MM = (210, 297)

@@ -1,6 +1,6 @@
 """Validator tests (FR-CMP-6, FR-CMP-3)."""
 
-from stepwise.compiler.validate import errors, is_valid, validate
+from thirdeye.compiler.validate import errors, is_valid, validate
 
 
 def codes(spec) -> set[str]:

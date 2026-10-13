@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import pytest
 
-from stepwise.compiler.schema import PartRef, Pose
-from stepwise.state.lego.build_state import BuildState
-from stepwise.state.lego.grid import (
+from thirdeye.compiler.schema import PartRef, Pose
+from thirdeye.state.lego.build_state import BuildState
+from thirdeye.state.lego.grid import (
     Reading,
     StudGrid,
     apply_homography,

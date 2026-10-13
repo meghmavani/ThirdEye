@@ -1,9 +1,9 @@
-# STEPWISE documentation
+# ThirdEye documentation
 
 | Document | Markdown (source) | PDF (for reading) |
 | --- | --- | --- |
-| Project plan — problem, architecture, timeline, risks | [`STEPWISE_Project_Plan.md`](STEPWISE_Project_Plan.md) | `STEPWISE_Project_Plan.pdf` |
-| Requirements specification — numbered, testable, traced to the plan | [`STEPWISE_Requirements.md`](STEPWISE_Requirements.md) | `STEPWISE_Requirements.pdf` |
+| Project plan — problem, architecture, timeline, risks | [`ThirdEye_Project_Plan.md`](ThirdEye_Project_Plan.md) | `ThirdEye_Project_Plan.pdf` |
+| Requirements specification — numbered, testable, traced to the plan | [`ThirdEye_Requirements.md`](ThirdEye_Requirements.md) | `ThirdEye_Requirements.pdf` |
 
 The markdown is the source of truth. The PDFs are generated artifacts — never edit one
 directly, and regenerate after any change to a document (requirements change control CC-4).
@@ -19,11 +19,11 @@ one that is wrong.
 uv venv /tmp/docsenv
 uv pip install --python /tmp/docsenv/bin/python weasyprint markdown
 /tmp/docsenv/bin/python docs/build_pdf.py            # all documents
-/tmp/docsenv/bin/python docs/build_pdf.py docs/STEPWISE_Requirements.md   # just one
+/tmp/docsenv/bin/python docs/build_pdf.py docs/ThirdEye_Requirements.md   # just one
 ```
 
 `weasyprint` and `markdown` are documentation-only dependencies and are deliberately kept out
-of the project's own requirements — nothing in `stepwise/` imports them.
+of the project's own requirements — nothing in `thirdeye/` imports them.
 
 ## Known gap
 

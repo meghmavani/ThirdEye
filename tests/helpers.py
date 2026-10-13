@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from stepwise.compiler.schema import Step
-from stepwise.events import Event
+from thirdeye.compiler.schema import Step
+from thirdeye.events import Event
 
 
 def placed(step: Step, t: float = 1.0, confidence: float = 1.0, **overrides) -> Event:

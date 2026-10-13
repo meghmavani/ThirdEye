@@ -13,7 +13,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from stepwise.compiler.compile import (
+from thirdeye.compiler.compile import (
     ClaudeLLM,
     CompileError,
     check,
@@ -21,7 +21,7 @@ from stepwise.compiler.compile import (
     main,
     output_schema,
 )
-from stepwise.compiler.schema import DagSpec, load_spec
+from thirdeye.compiler.schema import DagSpec, load_spec
 
 SPECS = Path(__file__).resolve().parents[1] / "specs"
 
@@ -136,7 +136,7 @@ def test_a_refusal_is_a_compile_error() -> None:
 
 def test_the_command_line_keeps_a_rejected_attempt(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setattr(
-        "stepwise.compiler.compile.ClaudeLLM",
+        "thirdeye.compiler.compile.ClaudeLLM",
         lambda model: Scripted([_floating(), _floating()], model=model),
     )
     src = tmp_path / "manual.txt"

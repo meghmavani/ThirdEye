@@ -22,10 +22,10 @@ from __future__ import annotations
 from collections.abc import Iterable
 from dataclasses import InitVar, dataclass, field
 
-from stepwise.checker.evaluate import Environment, EvalError, evaluate, missing_names
-from stepwise.checker.match import MatchPolicy, policy_for
-from stepwise.compiler.schema import ConstraintSpec, DagSpec, LoweredAction
-from stepwise.events import (
+from thirdeye.checker.evaluate import Environment, EvalError, evaluate, missing_names
+from thirdeye.checker.match import MatchPolicy, policy_for
+from thirdeye.compiler.schema import ConstraintSpec, DagSpec, LoweredAction
+from thirdeye.events import (
     COMPLETED,
     OPEN,
     Alert,

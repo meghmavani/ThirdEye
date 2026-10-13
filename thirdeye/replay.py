@@ -1,6 +1,6 @@
 """Replay a scripted session through the real tracker and checker.
 
-    python -m stepwise.replay scripts/scenarios/model_a_swap.yaml [--log out.json]
+    python -m thirdeye.replay scripts/scenarios/model_a_swap.yaml [--log out.json]
 
 A script describes the *scene*, not the events: which bricks are on the plate,
 whether a hand is over it, which Jenga block was pulled. The replayer films
@@ -53,13 +53,13 @@ from typing import Any
 
 import yaml
 
-from stepwise.compiler.schema import PartRef, Pose, load_spec
-from stepwise.events import Alert, Event, Slot
-from stepwise.session import Session
-from stepwise.sessionlog import SessionRecord
-from stepwise.state.jenga.lattice import TowerLattice, full_tower
-from stepwise.state.lego.build_state import BuildState
-from stepwise.state.lego.grid import Reading
+from thirdeye.compiler.schema import PartRef, Pose, load_spec
+from thirdeye.events import Alert, Event, Slot
+from thirdeye.session import Session
+from thirdeye.sessionlog import SessionRecord
+from thirdeye.state.jenga.lattice import TowerLattice, full_tower
+from thirdeye.state.lego.build_state import BuildState
+from thirdeye.state.lego.grid import Reading
 
 _BRICK = re.compile(
     r"^\s*(?P<color>[a-z]+)_(?P<size>\d+x\d+)\s*@\s*(?P<pose>[\d,\s]+?)"

@@ -2,8 +2,8 @@
 
 import pytest
 
-from stepwise.checker.evaluate import Environment, EvalError, evaluate, missing_names
-from stepwise.events import Slot
+from thirdeye.checker.evaluate import Environment, EvalError, evaluate, missing_names
+from thirdeye.events import Slot
 
 
 @pytest.fixture
@@ -50,7 +50,7 @@ def test_unbound_name_is_our_failure_not_a_verdict(env: Environment) -> None:
 
 def test_missing_attribute_names_the_state_model(env: Environment) -> None:
     """A stud-grid pose has no .slot; the error must say so, not crash opaquely."""
-    from stepwise.compiler.schema import Pose
+    from thirdeye.compiler.schema import Pose
 
     grid = env.merge({"src": Pose(x=1, y=2)})
     with pytest.raises(EvalError, match="not carried by"):

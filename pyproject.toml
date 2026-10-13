@@ -1,5 +1,5 @@
 [project]
-name = "stepwise"
+name = "thirdeye"
 version = "0.1.0"
 description = "Real-time detection of procedural errors from video using LLM-generated task graphs"
 requires-python = ">=3.11"
@@ -43,7 +43,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["stepwise*"]
+include = ["thirdeye*"]
 
 [tool.ruff]
 line-length = 100

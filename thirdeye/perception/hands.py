@@ -28,7 +28,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from stepwise.state.lego.grid import apply_homography
+from thirdeye.state.lego.grid import apply_homography
 
 DEFAULT_MODEL = Path(__file__).resolve().parents[2] / "models" / "hand_landmarker.task"
 

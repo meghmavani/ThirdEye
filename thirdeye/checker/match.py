@@ -12,8 +12,8 @@ from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
 
-from stepwise.compiler.schema import ConstraintSpec, DagSpec, LoweredAction, Precondition
-from stepwise.events import Alert, Event, Status
+from thirdeye.compiler.schema import ConstraintSpec, DagSpec, LoweredAction, Precondition
+from thirdeye.events import Alert, Event, Status
 
 
 @runtime_checkable
@@ -52,8 +52,8 @@ def policy_for(spec: DagSpec | ConstraintSpec) -> MatchPolicy:
     independent axes -- a future ordered procedure on a tower lattice would
     reuse the lattice policy without a new branch here.
     """
-    from stepwise.checker.rules_jenga import TowerLatticePolicy
-    from stepwise.checker.rules_lego import StudGridPolicy
+    from thirdeye.checker.rules_jenga import TowerLatticePolicy
+    from thirdeye.checker.rules_lego import StudGridPolicy
 
     policies: dict[str, type] = {
         "stud_grid": StudGridPolicy,

@@ -29,9 +29,9 @@ from __future__ import annotations
 
 from typing import NamedTuple
 
-from stepwise.compiler.schema import LoweredAction, PartRef, Pose, Precondition
-from stepwise.events import COMPLETED, OPEN, Alert, Event, Status
-from stepwise.state.lego.grid import pose_matches, same_cell, stud_distance
+from thirdeye.compiler.schema import LoweredAction, PartRef, Pose, Precondition
+from thirdeye.events import COMPLETED, OPEN, Alert, Event, Status
+from thirdeye.state.lego.grid import pose_matches, same_cell, stud_distance
 
 WRONG_BRICK = "wrong_brick"
 WRONG_POSITION = "wrong_position"

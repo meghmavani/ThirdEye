@@ -14,9 +14,9 @@ from collections.abc import Sequence
 import cv2
 import numpy as np
 
-from stepwise.compiler.schema import PartRef, Pose
-from stepwise.perception.calibrate import MarkerLayout
-from stepwise.state.lego.grid import extent
+from thirdeye.compiler.schema import PartRef, Pose
+from thirdeye.perception.calibrate import MarkerLayout
+from thirdeye.state.lego.grid import extent
 
 PX = 30            # pixels per stud in the flat drawing
 MARGIN = 4         # studs of white around the plate

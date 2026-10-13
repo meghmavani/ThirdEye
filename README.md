@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🧩 STEPWISE
+# 🧩 ThirdEye
 
 ### Catch mistakes in a procedure *as they happen*, from video, with rules an LLM reads from the manual.
 
@@ -17,7 +17,7 @@
 
 ## ✨ What it does
 
-Someone plays **Jenga** or builds a **jigsaw** in front of a camera. STEPWISE follows along and
+Someone plays **Jenga** or builds a **jigsaw** in front of a camera. ThirdEye follows along and
 flags the moment they break the procedure:
 
 | 🚫 Alert | Example |
@@ -188,7 +188,7 @@ pytest
 **3. Replay a Jenga game** through the real tracker and checker
 
 ```bash
-python -m stepwise.replay scripts/scenarios/jenga_fouls.yaml
+python -m thirdeye.replay scripts/scenarios/jenga_fouls.yaml
 ```
 ```text
 jenga_game: 6 moves judged, 6 alerts, 0 warnings
@@ -199,7 +199,7 @@ jenga_game: 6 moves judged, 6 alerts, 0 warnings
 
 ```bash
 export ANTHROPIC_API_KEY=...
-python -m stepwise.compiler.compile manuals/model_a.txt --kind dag -o specs/model_a.compiled.json
+python -m thirdeye.compiler.compile manuals/model_a.txt --kind dag -o specs/model_a.compiled.json
 ```
 
 > [!TIP]
@@ -212,8 +212,8 @@ python -m stepwise.compiler.compile manuals/model_a.txt --kind dag -o specs/mode
 
 ```bash
 python scripts/make_markers.py markers.png       # print at 100%, tape at the plate corners
-python -m stepwise.live --spec specs/model_a.json --zero-shot
-python -m stepwise.live --spec specs/model_a.json --zero-shot --video run.mp4 --no-show --log run.json
+python -m thirdeye.live --spec specs/model_a.json --zero-shot
+python -m thirdeye.live --spec specs/model_a.json --zero-shot --video run.mp4 --no-show --log run.json
 ```
 
 </details>
@@ -274,7 +274,7 @@ python -m stepwise.live --spec specs/model_a.json --zero-shot --video run.mp4 --
 - [ ] LLM session report (`explain/`)
 - [ ] FastAPI + WebSocket server and web UI
 - [ ] Evaluation: precision/recall per error, false alerts per run, alert delay, latency
-- [ ] Update `docs/` to the current direction
+- [x] Update `docs/` to the current direction
 
 </details>
 
@@ -294,7 +294,7 @@ python -m stepwise.live --spec specs/model_a.json --zero-shot --video run.mp4 --
 <summary>Show tree</summary>
 
 ```
-stepwise/
+thirdeye/
 ├── compiler/      📖 schema · validator · safe expressions · LLM compiler
 ├── perception/    👁️ calibration · hands · detection · pipeline
 ├── state/
@@ -323,9 +323,10 @@ Still empty: `temporal/`, `explain/`, `server/`, `ui/`, `eval/`, `configs/`.
 
 | | |
 | :-- | :-- |
-| 📋 [Project plan](docs/STEPWISE_Project_Plan.md) | Problem, architecture, timeline, risks |
-| ✅ [Requirements](docs/STEPWISE_Requirements.md) | 255 numbered requirements, the `FR-*` / `NFR-*` IDs cited in the code |
+| 📋 [Project plan](docs/ThirdEye_Project_Plan.md) | Problem, architecture, timeline, risks |
+| ✅ [Requirements](docs/ThirdEye_Requirements.md) | Numbered requirements, the `FR-*` / `NFR-*` IDs cited in the code |
 
-> [!IMPORTANT]
-> Both documents still describe the original **LEGO-first** plan and haven't been updated for
-> the switch to Jenga + jigsaw.
+> [!NOTE]
+> Both documents were rewritten on 2026-10-12 for the Jenga + jigsaw direction. LEGO requirements are
+> marked parked, not deleted, because the code still cites their IDs. The PDFs in `docs/` are stale
+> until regenerated (see `docs/README.md`).

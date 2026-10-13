@@ -25,7 +25,7 @@ from collections import deque
 from dataclasses import dataclass, field
 from statistics import median
 
-from stepwise.state.jenga.lattice import BLOCK_MM, TowerLattice
+from thirdeye.state.jenga.lattice import BLOCK_MM, TowerLattice
 
 #: A layer is one block thick.
 LAYER_MM = BLOCK_MM[2]

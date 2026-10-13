@@ -14,7 +14,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Literal
 
-from stepwise.compiler.schema import PartRef, Pose
+from thirdeye.compiler.schema import PartRef, Pose
 
 #: FR-CHK-1. `active` is set when a step is under way but not yet confirmed --
 #: it exists so the UI can distinguish "not started" from "in progress".

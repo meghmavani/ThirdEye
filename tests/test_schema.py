@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from stepwise.compiler.schema import (
+from thirdeye.compiler.schema import (
     HARD_DEP_VIOLATION,
     ConstraintSpec,
     DagSpec,

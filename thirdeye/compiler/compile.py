@@ -1,6 +1,6 @@
 """The LLM procedure compiler (FR-CMP-1, FR-CMP-4, FR-CMP-5, FR-CMP-7, IF-SPEC-5).
 
-    python -m stepwise.compiler.compile manuals/model_a.txt --kind dag -o specs/model_a.compiled.json
+    python -m thirdeye.compiler.compile manuals/model_a.txt --kind dag -o specs/model_a.compiled.json
 
 Text in, validated spec out, once per procedure and never on the live path
 (FR-CMP-10). The model sees only text (FR-CMP-11): the manual or rulebook, the
@@ -31,9 +31,9 @@ from typing import Any, Literal, Protocol
 
 from pydantic import ValidationError
 
-from stepwise.compiler.expr import vocabulary_prompt
-from stepwise.compiler.schema import ConstraintSpec, DagSpec, Provenance, parse_spec
-from stepwise.compiler.validate import Problem, errors, validate
+from thirdeye.compiler.expr import vocabulary_prompt
+from thirdeye.compiler.schema import ConstraintSpec, DagSpec, Provenance, parse_spec
+from thirdeye.compiler.validate import Problem, errors, validate
 
 COMPILER_VERSION = "0.1.0"
 #: Plan section 3. Overridable per call; the choice is recorded in every spec.

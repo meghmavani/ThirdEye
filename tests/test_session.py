@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from stepwise.compiler.schema import ConstraintSpec, DagSpec, PartRef, Pose
-from stepwise.events import Event, Slot
-from stepwise.session import Session, state_for
-from stepwise.state.jenga.lattice import TowerLattice, full_tower
-from stepwise.state.lego.build_state import BuildState
-from stepwise.state.lego.grid import Reading
+from thirdeye.compiler.schema import ConstraintSpec, DagSpec, PartRef, Pose
+from thirdeye.events import Event, Slot
+from thirdeye.session import Session, state_for
+from thirdeye.state.jenga.lattice import TowerLattice, full_tower
+from thirdeye.state.lego.build_state import BuildState
+from thirdeye.state.lego.grid import Reading
 
 
 def see(session: Session, t: float, steps, hands: bool = False) -> list:

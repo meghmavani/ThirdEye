@@ -18,7 +18,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
-from stepwise.events import Alert, LogEntry
+from thirdeye.events import Alert, LogEntry
 
 #: Bumped on any change a reader of an older file would misread (IF-WS-2's
 #: versioning rule, applied to the log for the same reason).

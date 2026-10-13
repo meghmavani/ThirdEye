@@ -13,8 +13,8 @@ from pathlib import Path
 import pytest
 import yaml
 
-from stepwise.replay import Replay, ScriptError, brick, main
-from stepwise.sessionlog import SessionRecord
+from thirdeye.replay import Replay, ScriptError, brick, main
+from thirdeye.sessionlog import SessionRecord
 
 SCENARIOS = sorted((Path(__file__).resolve().parents[1] / "scripts" / "scenarios").glob("*.yaml"))
 

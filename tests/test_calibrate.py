@@ -11,8 +11,8 @@ import numpy as np
 import pytest
 from synthetic import LAYOUT, scene, to_pixels
 
-from stepwise.perception.calibrate import Calibrator, fit, from_corners
-from stepwise.state.lego.grid import apply_homography
+from thirdeye.perception.calibrate import Calibrator, fit, from_corners
+from thirdeye.state.lego.grid import apply_homography
 
 
 def test_markers_fit_a_homography_onto_studs_from_an_angle() -> None:

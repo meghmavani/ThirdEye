@@ -20,7 +20,7 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from typing import Any
 
-from stepwise.compiler.expr import ATTRS, PREDICATES, STATE_VARS, check_expr
+from thirdeye.compiler.expr import ATTRS, PREDICATES, STATE_VARS, check_expr
 
 
 class EvalError(Exception):

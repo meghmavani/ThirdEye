@@ -11,17 +11,17 @@ from pathlib import Path
 import pytest
 from helpers import placed
 
-from stepwise.checker.engine import Checker
-from stepwise.checker.rules_lego import (
+from thirdeye.checker.engine import Checker
+from thirdeye.checker.rules_lego import (
     EXTRA_PART,
     REMOVED_PART,
     WRONG_BRICK,
     WRONG_POSITION,
     WRONG_ROTATION,
 )
-from stepwise.compiler.schema import DagSpec, PartRef, Pose
-from stepwise.events import Event, Reverification
-from stepwise.state.lego.grid import rotations_indistinguishable
+from thirdeye.compiler.schema import DagSpec, PartRef, Pose
+from thirdeye.events import Event, Reverification
+from thirdeye.state.lego.grid import rotations_indistinguishable
 
 OUT_OF_ORDER = "out_of_order"
 MISSED_STEP = "missed_step"
@@ -351,7 +351,7 @@ def test_the_engine_never_branches_on_procedure_type() -> None:
     If this fails, `lower()` has stopped carrying its weight and the tier-3
     result in plan 1.2 is no longer supported by the code.
     """
-    source = Path("stepwise/checker/engine.py").read_text()
+    source = Path("thirdeye/checker/engine.py").read_text()
     tree = ast.parse(source)
     spec_types = {"DagSpec", "ConstraintSpec", "Step", "Action"}
     for node in ast.walk(tree):

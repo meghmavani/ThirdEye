@@ -16,8 +16,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from stepwise.compiler.schema import LoweredAction, Precondition
-from stepwise.events import Alert, Event, Status
+from thirdeye.compiler.schema import LoweredAction, Precondition
+from thirdeye.events import Alert, Event, Status
 
 
 class TowerLatticePolicy:

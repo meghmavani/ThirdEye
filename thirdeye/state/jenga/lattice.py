@@ -30,8 +30,8 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-from stepwise.events import Event, Slot
-from stepwise.state.base import WorldState
+from thirdeye.events import Event, Slot
+from thirdeye.state.base import WorldState
 
 #: Immutable rows, so the previous and current snapshots cannot alias. 54 cells
 #: does not need NumPy, and comparing tuples is how `diff` stays under the 1 ms

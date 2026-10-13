@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from stepwise.session import Session
-from stepwise.state.jenga.collapse import LAYER_MM, CollapseDetector
-from stepwise.state.jenga.lattice import TowerLattice, full_tower
+from thirdeye.session import Session
+from thirdeye.state.jenga.collapse import LAYER_MM, CollapseDetector
+from thirdeye.state.jenga.lattice import TowerLattice, full_tower
 
 TALL = 18 * LAYER_MM
 
