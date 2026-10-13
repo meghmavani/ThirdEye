@@ -1,0 +1,8 @@
+# Step pyramid
+# 8x8 baseplate. Coordinates: studs from the bottom-left corner; a
+# brick's position is its lowest-x, lowest-y stud.
+
+1. Place a white 2x4 brick on the plate in the bottom-left corner, long side away from you.
+2. Place a second white 2x4 brick directly to its right.
+3. Bridge them with a black 2x4 turned sideways so it runs left to right across the front of both, on top.
+4. Put a green 2x2 brick on top of the left white brick, behind the black one.

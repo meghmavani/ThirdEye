@@ -1,0 +1,7 @@
+# Little bridge
+# 8x8 baseplate. Coordinates: studs from the bottom-left corner; a
+# brick's position is its lowest-x, lowest-y stud.
+
+1. Place a red 2x2 brick at the bottom-left corner of the plate.
+2. Place a yellow 2x2 brick two studs to the right of the red one.
+3. Lay a blue 2x4 brick across the top of both, turned so it runs left to right, its left end over the red brick.

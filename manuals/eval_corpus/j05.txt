@@ -1,0 +1,8 @@
+# Lighthouse -- 16 pieces, 4 x 4.
+# Pieces are named by where they belong in the box picture: r<row>c<col>, counting
+# from r0c0 in the top-left. Each piece goes in its own cell of the board.
+
+1) Corners: r0c0, r0c3, r3c0, r3c3.
+2) Frame, after the corners: top r0c1 r0c2; bottom r3c1 r3c2; left r1c0 r2c0;
+   right r1c3 r2c3.
+3) Inside, after the whole frame: r1c1, r1c2, r2c1, r2c2.

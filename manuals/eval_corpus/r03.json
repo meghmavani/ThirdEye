@@ -1,0 +1,56 @@
+{
+  "procedure": "r03",
+  "kind": "constraints",
+  "state_model": "tower_lattice",
+  "tower": {
+    "layers": 18,
+    "slots_per_layer": 3
+  },
+  "actions": [
+    {
+      "id": "move",
+      "instruction": "Take a block from the middle of the tower and place it on top",
+      "preconditions": [
+        {
+          "id": "c1",
+          "expr": "src.layer <= top_complete_layer - 1",
+          "text": "Not from the highest finished layer or above",
+          "violation": "illegal_source_layer",
+          "on_violation": "alert"
+        },
+        {
+          "id": "c2",
+          "expr": "src.layer >= 2",
+          "text": "The bottom two layers are the foundation",
+          "violation": "protected_base",
+          "on_violation": "alert"
+        },
+        {
+          "id": "c3",
+          "expr": "hands_in_contact == 1",
+          "text": "One hand only",
+          "violation": "two_handed_move",
+          "on_violation": "alert"
+        },
+        {
+          "id": "c4",
+          "expr": "dst in legal_top_slots()",
+          "text": "Place on top, in a legal slot",
+          "violation": "wrong_replacement",
+          "on_violation": "alert"
+        }
+      ],
+      "effects": [
+        "occupancy[src] = 0",
+        "occupancy[dst] = 1"
+      ]
+    }
+  ],
+  "terminal": [
+    {
+      "id": "t1",
+      "expr": "collapse_detected",
+      "outcome": "game_over"
+    }
+  ]
+}

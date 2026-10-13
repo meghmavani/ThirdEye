@@ -1,0 +1,8 @@
+# Strict Jenga -- tournament rules.
+
+1. Never take a block from the highest finished level or any level above it.
+2. The bottom two levels are the foundation: do not take from them.
+3. One hand on the tower, always.
+4. The block goes on top, in a free place on the top level or, once that level is
+   finished, in a new level.
+5. A fall ends the game.

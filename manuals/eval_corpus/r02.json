@@ -1,0 +1,42 @@
+{
+  "procedure": "r02",
+  "kind": "constraints",
+  "state_model": "tower_lattice",
+  "tower": {
+    "layers": 18,
+    "slots_per_layer": 3
+  },
+  "actions": [
+    {
+      "id": "move",
+      "instruction": "Take a block from at least two layers below the top and place it on top",
+      "preconditions": [
+        {
+          "id": "c1",
+          "expr": "src.layer <= top_layer - 2",
+          "text": "Take only from at least two layers below the top",
+          "violation": "illegal_source_layer",
+          "on_violation": "alert"
+        },
+        {
+          "id": "c2",
+          "expr": "dst in legal_top_slots()",
+          "text": "Place on the top layer, or start a new one when it is full",
+          "violation": "wrong_replacement",
+          "on_violation": "alert"
+        }
+      ],
+      "effects": [
+        "occupancy[src] = 0",
+        "occupancy[dst] = 1"
+      ]
+    }
+  ],
+  "terminal": [
+    {
+      "id": "t1",
+      "expr": "collapse_detected",
+      "outcome": "game_over"
+    }
+  ]
+}

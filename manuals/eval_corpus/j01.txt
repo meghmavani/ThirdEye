@@ -1,0 +1,7 @@
+# Teddy -- 4 pieces, 2 across and 2 down.
+# Pieces are named by where they belong in the box picture: r<row>c<col>, counting
+# from r0c0 in the top-left. Each piece goes in its own cell of the board.
+
+Put each of the four pieces in its place: r0c0 at the top left, r0c1 at the top
+right, r1c0 at the bottom left and r1c1 at the bottom right. The order does not
+matter.

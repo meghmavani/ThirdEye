@@ -1,0 +1,135 @@
+{
+  "procedure": "j02",
+  "kind": "dag",
+  "state_model": "piece_grid",
+  "grid": {
+    "cols": 3,
+    "rows": 2
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "instruction": "Place corner piece r0c0 at top-left",
+      "part": {
+        "piece": "r0c0"
+      },
+      "pose": {
+        "col": 0,
+        "row": 0,
+        "rot": 0
+      },
+      "hard_depends_on": [],
+      "soft_depends_on": [],
+      "optional": false,
+      "expected_duration_s": [
+        3.0,
+        40.0
+      ]
+    },
+    {
+      "id": "s2",
+      "instruction": "Place corner piece r0c2 at top-right",
+      "part": {
+        "piece": "r0c2"
+      },
+      "pose": {
+        "col": 2,
+        "row": 0,
+        "rot": 0
+      },
+      "hard_depends_on": [],
+      "soft_depends_on": [],
+      "optional": false,
+      "expected_duration_s": [
+        3.0,
+        40.0
+      ]
+    },
+    {
+      "id": "s3",
+      "instruction": "Place corner piece r1c0 at bottom-left",
+      "part": {
+        "piece": "r1c0"
+      },
+      "pose": {
+        "col": 0,
+        "row": 1,
+        "rot": 0
+      },
+      "hard_depends_on": [],
+      "soft_depends_on": [],
+      "optional": false,
+      "expected_duration_s": [
+        3.0,
+        40.0
+      ]
+    },
+    {
+      "id": "s4",
+      "instruction": "Place corner piece r1c2 at bottom-right",
+      "part": {
+        "piece": "r1c2"
+      },
+      "pose": {
+        "col": 2,
+        "row": 1,
+        "rot": 0
+      },
+      "hard_depends_on": [],
+      "soft_depends_on": [],
+      "optional": false,
+      "expected_duration_s": [
+        3.0,
+        40.0
+      ]
+    },
+    {
+      "id": "s5",
+      "instruction": "Place edge piece r0c1 at top",
+      "part": {
+        "piece": "r0c1"
+      },
+      "pose": {
+        "col": 1,
+        "row": 0,
+        "rot": 0
+      },
+      "hard_depends_on": [],
+      "soft_depends_on": [
+        "s1",
+        "s2",
+        "s3",
+        "s4"
+      ],
+      "optional": false,
+      "expected_duration_s": [
+        3.0,
+        40.0
+      ]
+    },
+    {
+      "id": "s6",
+      "instruction": "Place edge piece r1c1 at bottom",
+      "part": {
+        "piece": "r1c1"
+      },
+      "pose": {
+        "col": 1,
+        "row": 1,
+        "rot": 0
+      },
+      "hard_depends_on": [],
+      "soft_depends_on": [
+        "s1",
+        "s2",
+        "s3",
+        "s4"
+      ],
+      "optional": false,
+      "expected_duration_s": [
+        3.0,
+        40.0
+      ]
+    }
+  ]
+}

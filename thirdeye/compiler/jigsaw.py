@@ -40,6 +40,27 @@ def _place(col: int, row: int, cols: int, rows: int) -> str:
     return "-".join(side) if side else f"column {col + 1}, row {row + 1}"
 
 
+def chain(
+    procedure: str, cols: int, rows: int, order: list[tuple[int, int]],
+    rotations: dict[str, int] | None = None,
+) -> JigsawSpec:
+    """A sheet that states one fixed sequence: each piece softly follows the one before."""
+    rotations = rotations or {}
+    steps = []
+    for i, (col, row) in enumerate(order):
+        pid = piece_id(col, row)
+        steps.append(
+            JigsawStep(
+                id=f"s{i + 1}",
+                instruction=f"Place piece {pid} at {_place(col, row, cols, rows)}",
+                part=PieceRef(piece=pid),
+                pose=CellPose(col=col, row=row, rot=rotations.get(pid, 0)),  # type: ignore[arg-type]
+                soft_depends_on=[f"s{i}"] if i else [],
+            )
+        )
+    return JigsawSpec(procedure=procedure, grid=Grid(cols=cols, rows=rows), steps=steps)
+
+
 def border_first(
     procedure: str, cols: int, rows: int, rotations: dict[str, int] | None = None
 ) -> JigsawSpec:

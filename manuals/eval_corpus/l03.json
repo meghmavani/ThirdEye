@@ -1,0 +1,108 @@
+{
+  "procedure": "l03",
+  "kind": "dag",
+  "state_model": "stud_grid",
+  "baseplate": {
+    "studs_x": 8,
+    "studs_y": 8
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "instruction": "",
+      "part": {
+        "color": "white",
+        "size": "2x4"
+      },
+      "pose": {
+        "x": 0,
+        "y": 0,
+        "layer": 0,
+        "rot": 0
+      },
+      "hard_depends_on": [],
+      "soft_depends_on": [],
+      "optional": false,
+      "expected_duration_s": [
+        3.0,
+        20.0
+      ]
+    },
+    {
+      "id": "s2",
+      "instruction": "",
+      "part": {
+        "color": "white",
+        "size": "2x4"
+      },
+      "pose": {
+        "x": 2,
+        "y": 0,
+        "layer": 0,
+        "rot": 0
+      },
+      "hard_depends_on": [],
+      "soft_depends_on": [
+        "s1"
+      ],
+      "optional": false,
+      "expected_duration_s": [
+        3.0,
+        20.0
+      ]
+    },
+    {
+      "id": "s3",
+      "instruction": "",
+      "part": {
+        "color": "black",
+        "size": "2x4"
+      },
+      "pose": {
+        "x": 0,
+        "y": 0,
+        "layer": 1,
+        "rot": 90
+      },
+      "hard_depends_on": [
+        "s1",
+        "s2"
+      ],
+      "soft_depends_on": [
+        "s1",
+        "s2"
+      ],
+      "optional": false,
+      "expected_duration_s": [
+        3.0,
+        20.0
+      ]
+    },
+    {
+      "id": "s4",
+      "instruction": "",
+      "part": {
+        "color": "green",
+        "size": "2x2"
+      },
+      "pose": {
+        "x": 0,
+        "y": 2,
+        "layer": 1,
+        "rot": 0
+      },
+      "hard_depends_on": [
+        "s1"
+      ],
+      "soft_depends_on": [
+        "s1",
+        "s3"
+      ],
+      "optional": false,
+      "expected_duration_s": [
+        3.0,
+        20.0
+      ]
+    }
+  ]
+}

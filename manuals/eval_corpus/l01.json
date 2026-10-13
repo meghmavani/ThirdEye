@@ -1,0 +1,78 @@
+{
+  "procedure": "l01",
+  "kind": "dag",
+  "state_model": "stud_grid",
+  "baseplate": {
+    "studs_x": 8,
+    "studs_y": 8
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "instruction": "",
+      "part": {
+        "color": "red",
+        "size": "2x4"
+      },
+      "pose": {
+        "x": 0,
+        "y": 0,
+        "layer": 0,
+        "rot": 0
+      },
+      "hard_depends_on": [],
+      "soft_depends_on": [],
+      "optional": false,
+      "expected_duration_s": [
+        3.0,
+        20.0
+      ]
+    },
+    {
+      "id": "s2",
+      "instruction": "",
+      "part": {
+        "color": "blue",
+        "size": "2x4"
+      },
+      "pose": {
+        "x": 2,
+        "y": 0,
+        "layer": 0,
+        "rot": 0
+      },
+      "hard_depends_on": [],
+      "soft_depends_on": [
+        "s1"
+      ],
+      "optional": false,
+      "expected_duration_s": [
+        3.0,
+        20.0
+      ]
+    },
+    {
+      "id": "s3",
+      "instruction": "",
+      "part": {
+        "color": "green",
+        "size": "2x4"
+      },
+      "pose": {
+        "x": 4,
+        "y": 0,
+        "layer": 0,
+        "rot": 0
+      },
+      "hard_depends_on": [],
+      "soft_depends_on": [
+        "s2"
+      ],
+      "optional": false,
+      "expected_duration_s": [
+        3.0,
+        20.0
+      ]
+    }
+  ]
+}

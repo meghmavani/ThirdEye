@@ -1,0 +1,8 @@
+# Kite -- 9 pieces, 3 x 3, one piece goes in turned.
+# Pieces are named by where they belong in the box picture: r<row>c<col>, counting
+# from r0c0 in the top-left. Each piece goes in its own cell of the board.
+
+1. The four corners first (r0c0, r0c2, r2c0, r2c2).
+2. The four edge pieces (r0c1, r1c0, r1c2, r2c1).
+3. The centre piece r1c1 last. It is the only one that is not upright: turn it a
+   quarter turn clockwise (90 degrees) before you set it down.

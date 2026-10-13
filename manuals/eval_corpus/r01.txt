@@ -1,0 +1,9 @@
+# Classic Jenga, as printed in the box.
+
+Build the tower: 18 layers of 3 blocks, alternate layers crosswise. Take turns.
+On your turn take one block from any level except the one directly beneath the
+highest finished level -- wait: not the highest finished level itself, and nothing
+above it. Use one hand only at a time. Put the block on the very top, in the
+pattern of the layers: complete a level of three before you begin the next one. A
+block may not be pushed back into the middle of the tower. The game is over when
+the tower falls.

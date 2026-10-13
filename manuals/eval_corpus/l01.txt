@@ -1,0 +1,7 @@
+# Three in a row
+# 8x8 baseplate. Coordinates: studs from the bottom-left corner; a
+# brick's position is its lowest-x, lowest-y stud.
+
+1. Place a red 2x4 brick on the plate in the bottom-left corner, long side pointing away from you.
+2. Place a blue 2x4 brick beside it, two studs to the right, the same way round.
+3. Place a green 2x4 brick beside that, two studs further right.

@@ -1,0 +1,54 @@
+{
+  "procedure": "r04",
+  "kind": "constraints",
+  "state_model": "tower_lattice",
+  "tower": {
+    "layers": 18,
+    "slots_per_layer": 3
+  },
+  "actions": [
+    {
+      "id": "move",
+      "instruction": "Take any block below the highest full layer and place it on top",
+      "preconditions": [
+        {
+          "id": "c1",
+          "expr": "src.layer < top_complete_layer",
+          "text": "Take only from below the highest full layer",
+          "violation": "illegal_source_layer",
+          "on_violation": "alert"
+        },
+        {
+          "id": "c2",
+          "expr": "hands_in_contact == 1",
+          "text": "Use a single hand",
+          "violation": "two_handed_move",
+          "on_violation": "alert"
+        },
+        {
+          "id": "c3",
+          "expr": "dst.layer == top_layer or layer_complete(top_layer)",
+          "text": "Finish the level you are building first",
+          "violation": "layer_started_early",
+          "on_violation": "alert"
+        }
+      ],
+      "effects": [
+        "occupancy[src] = 0",
+        "occupancy[dst] = 1"
+      ]
+    }
+  ],
+  "terminal": [
+    {
+      "id": "t1",
+      "expr": "collapse_detected",
+      "outcome": "game_over"
+    },
+    {
+      "id": "t2",
+      "expr": "src.layer == 0 and src.slot == 1",
+      "outcome": "foundation_pulled"
+    }
+  ]
+}

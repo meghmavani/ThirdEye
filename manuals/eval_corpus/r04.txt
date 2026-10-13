@@ -1,0 +1,7 @@
+# Tower Tag -- a quick variant.
+
+You may take any block that lies below the highest full level (not from the full
+level itself). Use a single hand. Finish the level you are building before you
+start another. Be careful with the foundation: if anybody pulls the middle block
+of the bottom level the game ends on the spot, and of course it ends if the tower
+topples.

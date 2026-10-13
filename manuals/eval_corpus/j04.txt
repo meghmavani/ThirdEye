@@ -1,0 +1,10 @@
+# Harbour -- 12 pieces, 4 columns by 3 rows.
+# Legend: the top row is r0c0 r0c1 r0c2 r0c3, the middle row r1c0 .. r1c3, the
+# bottom row r2c0 .. r2c3.
+
+Start with the four corner pieces: top-left, top-right, bottom-left, bottom-right.
+After that, complete the rest of the frame: the two pieces between the top
+corners, the two between the bottom corners, and the single piece on each side
+(middle row, first and last column). Do not start the picture's middle until the
+frame is complete. The last two pieces are the middle of the middle row, left
+one first.

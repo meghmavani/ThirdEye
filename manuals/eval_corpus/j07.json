@@ -1,0 +1,198 @@
+{
+  "procedure": "j07",
+  "kind": "dag",
+  "state_model": "piece_grid",
+  "grid": {
+    "cols": 3,
+    "rows": 3
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "instruction": "Place piece r0c0 at top-left",
+      "part": {
+        "piece": "r0c0"
+      },
+      "pose": {
+        "col": 0,
+        "row": 0,
+        "rot": 0
+      },
+      "hard_depends_on": [],
+      "soft_depends_on": [],
+      "optional": false,
+      "expected_duration_s": [
+        3.0,
+        40.0
+      ]
+    },
+    {
+      "id": "s2",
+      "instruction": "Place piece r0c1 at top",
+      "part": {
+        "piece": "r0c1"
+      },
+      "pose": {
+        "col": 1,
+        "row": 0,
+        "rot": 0
+      },
+      "hard_depends_on": [],
+      "soft_depends_on": [
+        "s1"
+      ],
+      "optional": false,
+      "expected_duration_s": [
+        3.0,
+        40.0
+      ]
+    },
+    {
+      "id": "s3",
+      "instruction": "Place piece r0c2 at top-right",
+      "part": {
+        "piece": "r0c2"
+      },
+      "pose": {
+        "col": 2,
+        "row": 0,
+        "rot": 0
+      },
+      "hard_depends_on": [],
+      "soft_depends_on": [
+        "s2"
+      ],
+      "optional": false,
+      "expected_duration_s": [
+        3.0,
+        40.0
+      ]
+    },
+    {
+      "id": "s4",
+      "instruction": "Place piece r1c0 at left",
+      "part": {
+        "piece": "r1c0"
+      },
+      "pose": {
+        "col": 0,
+        "row": 1,
+        "rot": 0
+      },
+      "hard_depends_on": [],
+      "soft_depends_on": [
+        "s3"
+      ],
+      "optional": false,
+      "expected_duration_s": [
+        3.0,
+        40.0
+      ]
+    },
+    {
+      "id": "s5",
+      "instruction": "Place piece r1c1 at column 2, row 2",
+      "part": {
+        "piece": "r1c1"
+      },
+      "pose": {
+        "col": 1,
+        "row": 1,
+        "rot": 0
+      },
+      "hard_depends_on": [],
+      "soft_depends_on": [
+        "s4"
+      ],
+      "optional": false,
+      "expected_duration_s": [
+        3.0,
+        40.0
+      ]
+    },
+    {
+      "id": "s6",
+      "instruction": "Place piece r1c2 at right",
+      "part": {
+        "piece": "r1c2"
+      },
+      "pose": {
+        "col": 2,
+        "row": 1,
+        "rot": 0
+      },
+      "hard_depends_on": [],
+      "soft_depends_on": [
+        "s5"
+      ],
+      "optional": false,
+      "expected_duration_s": [
+        3.0,
+        40.0
+      ]
+    },
+    {
+      "id": "s7",
+      "instruction": "Place piece r2c0 at bottom-left",
+      "part": {
+        "piece": "r2c0"
+      },
+      "pose": {
+        "col": 0,
+        "row": 2,
+        "rot": 0
+      },
+      "hard_depends_on": [],
+      "soft_depends_on": [
+        "s6"
+      ],
+      "optional": false,
+      "expected_duration_s": [
+        3.0,
+        40.0
+      ]
+    },
+    {
+      "id": "s8",
+      "instruction": "Place piece r2c1 at bottom",
+      "part": {
+        "piece": "r2c1"
+      },
+      "pose": {
+        "col": 1,
+        "row": 2,
+        "rot": 0
+      },
+      "hard_depends_on": [],
+      "soft_depends_on": [
+        "s7"
+      ],
+      "optional": false,
+      "expected_duration_s": [
+        3.0,
+        40.0
+      ]
+    },
+    {
+      "id": "s9",
+      "instruction": "Place piece r2c2 at bottom-right",
+      "part": {
+        "piece": "r2c2"
+      },
+      "pose": {
+        "col": 2,
+        "row": 2,
+        "rot": 0
+      },
+      "hard_depends_on": [],
+      "soft_depends_on": [
+        "s8"
+      ],
+      "optional": false,
+      "expected_duration_s": [
+        3.0,
+        40.0
+      ]
+    }
+  ]
+}

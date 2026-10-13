@@ -1,0 +1,7 @@
+# Meadow -- 9 pieces, read like a page.
+# Pieces are named by where they belong in the box picture: r<row>c<col>, counting
+# from r0c0 in the top-left. Each piece goes in its own cell of the board.
+
+Place the pieces row by row, left to right, starting at the top: r0c0, r0c1, r0c2,
+then r1c0, r1c1, r1c2, then r2c0, r2c1, r2c2. Each piece goes down only after the
+one before it.

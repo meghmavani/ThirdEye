@@ -1,0 +1,6 @@
+# Relaxed Jenga -- house rules for beginners.
+
+Anyone may use both hands, and you may take from any level as long as it is at
+least two levels below the top of the tower. Whatever you take goes back on top:
+into a free space on the top level if it is not yet full, otherwise starting a new
+level. If the tower falls the round ends.

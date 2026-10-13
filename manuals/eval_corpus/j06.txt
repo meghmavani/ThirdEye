@@ -1,0 +1,7 @@
+# Market -- 20 pieces, 5 across, 4 down.
+# Pieces are named by where they belong in the box picture: r<row>c<col>, counting
+# from r0c0 in the top-left. Each piece goes in its own cell of the board.
+
+Work from the outside in. Place the four corners first. Then do the rest of the
+edge pieces in any order. Only then fill the six interior pieces (rows 2 and 3,
+columns 2 to 4 -- that is r1c1, r1c2, r1c3, r2c1, r2c2, r2c3).

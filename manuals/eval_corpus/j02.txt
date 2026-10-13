@@ -1,0 +1,7 @@
+# Sailboat -- 6 pieces, 3 across and 2 down.
+# Pieces are named by where they belong in the box picture: r<row>c<col>, counting
+# from r0c0 in the top-left. Each piece goes in its own cell of the board.
+
+1. Lay the four corners: r0c0, r0c2, r1c0 and r1c2.
+2. Then the two remaining pieces, the ones between the corners: r0c1 on top and
+   r1c1 on the bottom.
