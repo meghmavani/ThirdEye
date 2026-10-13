@@ -143,3 +143,27 @@ def test_the_command_line_keeps_a_rejected_attempt(tmp_path: Path, monkeypatch) 
     src.write_text("1. a brick")
     assert main([str(src), "--kind", "dag", "-o", str(tmp_path / "spec.json")]) == 1
     assert (tmp_path / "spec.rejected.json").exists()
+
+
+# --- the jigsaw kind (FR-CMP-1, FR-CMP-12) ----------------------------------------------
+
+def test_a_jigsaw_sheet_compiles_to_a_piece_grid_spec() -> None:
+    from thirdeye.compiler.schema import JigsawSpec
+
+    good = (SPECS / "jigsaw_forest_12.json").read_text()
+    llm = Scripted([good])
+    spec, _ = compile_source("sheet text", "jigsaw", llm, "manuals/jigsaw_forest_12.txt")
+    assert isinstance(spec, JigsawSpec) and len(spec.steps) == 12
+    assert spec.provenance is not None and spec.provenance.model == "scripted"
+    assert "r<row>c<col>" in llm.prompts[0] or "sheet text" in llm.prompts[0]
+
+
+def test_the_wrong_form_for_the_requested_kind_is_a_problem() -> None:
+    attempt = check((SPECS / "jigsaw_forest_12.json").read_text(), "dag")
+    assert attempt.problems and "jigsaw" in attempt.problems[0]
+
+
+def test_the_jigsaw_output_schema_is_strict_and_provenance_free() -> None:
+    schema = output_schema("jigsaw")
+    assert "Provenance" not in json.dumps(schema)
+    assert schema["additionalProperties"] is False
