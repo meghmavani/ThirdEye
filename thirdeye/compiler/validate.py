@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from typing import Literal
 
 from thirdeye.compiler.expr import check_expr
-from thirdeye.compiler.schema import ConstraintSpec, DagSpec, Step
+from thirdeye.compiler.schema import ConstraintSpec, DagSpec, JigsawSpec, Step
 
 Severity = Literal["error", "warning"]
 
@@ -42,7 +42,7 @@ def is_valid(problems: list[Problem]) -> bool:
 
 # --- DAG checks ---------------------------------------------------------------------
 
-def _check_ids(spec: DagSpec) -> list[Problem]:
+def _check_ids(spec: DagSpec | JigsawSpec) -> list[Problem]:
     seen: set[str] = set()
     out = []
     for step in spec.steps:
@@ -64,7 +64,7 @@ def _check_ids(spec: DagSpec) -> list[Problem]:
     return out
 
 
-def _check_cycles(spec: DagSpec) -> list[Problem]:
+def _check_cycles(spec: DagSpec | JigsawSpec) -> list[Problem]:
     """Depth-first cycle detection over hard and soft dependencies together."""
     ids = {s.id for s in spec.steps}
     deps = {
@@ -163,7 +163,7 @@ def _check_support(spec: DagSpec) -> list[Problem]:
     return out
 
 
-def _check_soft_order(spec: DagSpec) -> list[Problem]:
+def _check_soft_order(spec: DagSpec | JigsawSpec) -> list[Problem]:
     """A hard dependency that is not also a soft one is almost always a slip."""
     return [
         Problem("hard_dep_not_ordered", "warning", step.id,
@@ -171,6 +171,49 @@ def _check_soft_order(spec: DagSpec) -> list[Problem]:
                 f"is a hard dependency but not a stated order")
         for step in spec.steps
         if set(step.hard_depends_on) - set(step.soft_depends_on)
+    ]
+
+
+# --- jigsaw checks ------------------------------------------------------------------
+
+def _check_cells(spec: JigsawSpec) -> list[Problem]:
+    """Every target cell lies on the grid (FR-CMP-6's bounds check, for a flat grid)."""
+    return [
+        Problem("out_of_bounds", "error", step.id,
+                f"cell (col {step.pose.col}, row {step.pose.row}) is outside the "
+                f"{spec.grid.cols}x{spec.grid.rows} grid")
+        for step in spec.steps
+        if not (step.pose.col < spec.grid.cols and step.pose.row < spec.grid.rows)
+    ]
+
+
+def _check_cell_collisions(spec: JigsawSpec) -> list[Problem]:
+    """Two pieces may not be assigned the same cell, nor one piece two cells."""
+    cells: dict[tuple[int, int], str] = {}
+    pieces: dict[str, str] = {}
+    out = []
+    for step in spec.steps:
+        key = (step.pose.col, step.pose.row)
+        if key in cells:
+            out.append(Problem("collision", "error", step.id,
+                               f"cell {key} is already used by {cells[key]}"))
+        else:
+            cells[key] = step.id
+        if step.part.piece in pieces:
+            out.append(Problem("duplicate_piece", "error", step.id,
+                               f"piece {step.part.piece} is already placed by {pieces[step.part.piece]}"))
+        else:
+            pieces[step.part.piece] = step.id
+    return out
+
+
+def _check_hard_deps(spec: JigsawSpec) -> list[Problem]:
+    """Nothing holds a flat puzzle piece up, so a hard dependency is suspect."""
+    return [
+        Problem("unexpected_hard_dependency", "warning", step.id,
+                f"hard_depends_on {step.hard_depends_on} on a flat jigsaw; order should be soft")
+        for step in spec.steps
+        if step.hard_depends_on
     ]
 
 
@@ -265,9 +308,19 @@ def _has_legal_opening(spec: ConstraintSpec) -> bool:
 
 # --- entry point --------------------------------------------------------------------
 
-def validate(spec: DagSpec | ConstraintSpec) -> list[Problem]:
+def validate(spec: DagSpec | JigsawSpec | ConstraintSpec) -> list[Problem]:
     """Every problem with this spec, errors and warnings, in a stable order."""
-    if isinstance(spec, DagSpec):
+    if isinstance(spec, JigsawSpec):
+        problems = (
+            _check_ids(spec)
+            + _check_cells(spec)
+            + _check_cell_collisions(spec)
+            + _check_hard_deps(spec)
+            + _check_soft_order(spec)
+        )
+        if not [p for p in problems if p.code in {"unknown_dependency", "self_dependency"}]:
+            problems += _check_cycles(spec)
+    elif isinstance(spec, DagSpec):
         problems = (
             _check_ids(spec)
             + _check_bounds(spec)

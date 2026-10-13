@@ -14,7 +14,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Literal
 
-from thirdeye.compiler.schema import PartRef, Pose
+from thirdeye.compiler.schema import CellPose, PartRef, PieceRef, Pose
 
 #: FR-CHK-1. `active` is set when a step is under way but not yet confirmed --
 #: it exists so the UI can distinguish "not started" from "in progress".
@@ -64,8 +64,8 @@ class Event:
     t: float
     kind: EventKind
     source: EventSource = "state"
-    part: PartRef | None = None
-    pose: Pose | None = None
+    part: PartRef | PieceRef | None = None
+    pose: Pose | CellPose | None = None
     src: Slot | None = None
     dst: Slot | None = None
     #: A Jenga rule (FR-CHK-10) reads this directly, so it travels on the event
@@ -80,7 +80,11 @@ class Event:
 
     def pose_str(self) -> str | None:
         p = self.pose
-        return None if p is None else f"({p.x},{p.y},L{p.layer},rot{p.rot})"
+        if p is None:
+            return None
+        if isinstance(p, CellPose):
+            return f"(c{p.col},r{p.row},rot{p.rot})"
+        return f"({p.x},{p.y},L{p.layer},rot{p.rot})"
 
     def slots_str(self) -> str | None:
         if self.src is None and self.dst is None:

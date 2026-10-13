@@ -1,0 +1,13 @@
+# Forest -- 12-piece jigsaw, 4 pieces across and 3 down.
+# Pieces are named by where they belong in the box picture: r<row>c<col>, counting
+# from the top-left piece r0c0. The board has a cell for every piece.
+
+Work from the outside in.
+
+1. Place the four corner pieces first: r0c0 in the top-left corner of the board, r0c3
+   in the top-right, r2c0 in the bottom-left and r2c3 in the bottom-right.
+2. Once all four corners are down, fill in the rest of the border. Along the top edge
+   place r0c1 then r0c2. Along the bottom edge place r2c1 then r2c2. Down the left
+   edge place r1c0, and down the right edge place r1c3.
+3. Only when the whole border is complete, fill the middle with the last two pieces:
+   r1c1, then r1c2.

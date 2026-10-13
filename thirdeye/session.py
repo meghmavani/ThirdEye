@@ -27,15 +27,16 @@ from dataclasses import dataclass, field
 
 from thirdeye.checker.engine import Checker
 from thirdeye.checker.rules_jenga import MovePairer
-from thirdeye.compiler.schema import ConstraintSpec, DagSpec
+from thirdeye.compiler.schema import ConstraintSpec, DagSpec, JigsawSpec
 from thirdeye.events import Alert, Event, LogEntry, Status
 from thirdeye.state.base import WorldState
+from thirdeye.state.jigsaw.piece_grid import PieceGridState
 from thirdeye.state.jenga.lattice import TowerLattice
 from thirdeye.state.lego.build_state import BuildState
 from thirdeye.state.lego.grid import StudGrid
 
 
-def state_for(spec: DagSpec | ConstraintSpec) -> WorldState:
+def state_for(spec: DagSpec | JigsawSpec | ConstraintSpec) -> WorldState:
     """Build the state model the spec declares.
 
     Keyed on `state_model`, the same axis `policy_for` uses, so a new state
@@ -43,12 +44,14 @@ def state_for(spec: DagSpec | ConstraintSpec) -> WorldState:
     """
     if spec.state_model == "stud_grid":
         return BuildState(StudGrid.from_spec(spec.baseplate))
+    if spec.state_model == "piece_grid":
+        return PieceGridState(cols=spec.grid.cols, rows=spec.grid.rows)
     if spec.state_model == "tower_lattice":
         return TowerLattice(slots_per_layer=spec.tower.slots_per_layer)
     raise ValueError(f"no state model named {spec.state_model!r}")  # pragma: no cover
 
 
-def pairer_for(spec: DagSpec | ConstraintSpec) -> MovePairer | None:
+def pairer_for(spec: DagSpec | JigsawSpec | ConstraintSpec) -> MovePairer | None:
     """The event assembler this state model needs between tracker and checker.
 
     Only a lattice needs one: its tracker reports the halves of a move, and its
@@ -61,7 +64,7 @@ def pairer_for(spec: DagSpec | ConstraintSpec) -> MovePairer | None:
 class Session:
     """A procedure being performed, and the judgement of it so far."""
 
-    spec: DagSpec | ConstraintSpec
+    spec: DagSpec | JigsawSpec | ConstraintSpec
     state: WorldState = field(default=None)  # type: ignore[assignment]
     confidence_threshold: float = 0.5
 

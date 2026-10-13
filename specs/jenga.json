@@ -1,0 +1,63 @@
+{
+  "procedure": "jenga_game",
+  "kind": "constraints",
+  "state_model": "tower_lattice",
+  "tower": {
+    "layers": 18,
+    "slots_per_layer": 3
+  },
+  "actions": [
+    {
+      "id": "move",
+      "instruction": "Take one block from below the top complete layer and place it on top",
+      "preconditions": [
+        {
+          "id": "c1",
+          "expr": "src.layer <= top_complete_layer - 1",
+          "text": "Do not take from the top complete layer or above",
+          "violation": "illegal_source_layer",
+          "on_violation": "alert"
+        },
+        {
+          "id": "c2",
+          "expr": "hands_in_contact == 1",
+          "text": "One hand at a time",
+          "violation": "two_handed_move",
+          "on_violation": "alert"
+        },
+        {
+          "id": "c3",
+          "expr": "dst.layer == top_layer or layer_complete(top_layer)",
+          "text": "Finish a layer before starting the next",
+          "violation": "layer_started_early",
+          "on_violation": "alert"
+        },
+        {
+          "id": "c4",
+          "expr": "dst in legal_top_slots()",
+          "text": "Place only in a top-layer slot",
+          "violation": "wrong_replacement",
+          "on_violation": "alert"
+        }
+      ],
+      "effects": [
+        "occupancy[src] = 0",
+        "occupancy[dst] = 1"
+      ]
+    }
+  ],
+  "terminal": [
+    {
+      "id": "t1",
+      "expr": "collapse_detected",
+      "outcome": "game_over"
+    }
+  ],
+  "provenance": {
+    "compiler_version": "hand",
+    "model": "hand",
+    "source": "manuals/jenga_rules.txt",
+    "compiled_at": "",
+    "repaired": false
+  }
+}

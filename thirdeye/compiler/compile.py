@@ -1,6 +1,7 @@
 """The LLM procedure compiler (FR-CMP-1, FR-CMP-4, FR-CMP-5, FR-CMP-7, IF-SPEC-5).
 
     python -m thirdeye.compiler.compile manuals/model_a.txt --kind dag -o specs/model_a.compiled.json
+    python -m thirdeye.compiler.compile manuals/jigsaw_forest_12.txt --kind jigsaw -o ...
 
 Text in, validated spec out, once per procedure and never on the live path
 (FR-CMP-10). The model sees only text (FR-CMP-11): the manual or rulebook, the
@@ -32,18 +33,25 @@ from typing import Any, Literal, Protocol
 from pydantic import ValidationError
 
 from thirdeye.compiler.expr import vocabulary_prompt
-from thirdeye.compiler.schema import ConstraintSpec, DagSpec, Provenance, parse_spec
+from thirdeye.compiler.schema import (
+    ConstraintSpec,
+    DagSpec,
+    JigsawSpec,
+    Provenance,
+    parse_spec,
+)
 from thirdeye.compiler.validate import Problem, errors, validate
 
 COMPILER_VERSION = "0.1.0"
 #: Plan section 3. Overridable per call; the choice is recorded in every spec.
 DEFAULT_MODEL = "claude-sonnet-5"
 
-Kind = Literal["dag", "constraints"]
+Kind = Literal["dag", "jigsaw", "constraints"]
 
 SPECS = Path(__file__).resolve().parents[2] / "specs"
 EXAMPLES: dict[str, Path] = {
     "dag": SPECS / "example_dag.json",
+    "jigsaw": SPECS / "example_jigsaw.json",
     "constraints": SPECS / "example_constraints.json",
 }
 
@@ -81,7 +89,7 @@ def output_schema(kind: Kind) -> dict[str, Any]:
     than leaving us to guess whether it meant it; `provenance` is removed,
     because that is ours to write.
     """
-    model = DagSpec if kind == "dag" else ConstraintSpec
+    model = {"dag": DagSpec, "jigsaw": JigsawSpec, "constraints": ConstraintSpec}[kind]
     schema = _strict(model.model_json_schema())
     schema.get("$defs", {}).pop("Provenance", None)
     return schema
@@ -130,6 +138,26 @@ Mark a step optional only if the manual says it is optional. Use
 expected_duration_s [3, 20] unless the manual suggests otherwise.
 """
 
+_JIGSAW_RULES = """You compile a jigsaw puzzle instruction sheet into a dependency-graph procedure spec.
+
+The board is a grid of `cols` x `rows` cells. Cell (col, row) has col counting
+left to right and row counting top to bottom from (0, 0), the top-left corner.
+Pieces are named by where they belong in the finished picture: the piece for
+cell (col, row) is "r<row>c<col>", e.g. the top-right corner of a 4-column puzzle
+is "r0c3". Every piece goes in its own cell, rotation 0, unless the sheet says
+a piece is placed turned (then 90, 180 or 270, clockwise).
+
+Emit one step per piece, expanding any group instruction ("place the four
+corners") into one step per piece, ids s1, s2, ... in sheet order. Copy the
+instruction text; for an expanded step name the piece.
+
+Dependencies: a loose jigsaw piece is not physically held up by another, so
+hard_depends_on is empty. soft_depends_on records the order the sheet states: if
+the sheet says all corners before any edge, each edge step softly depends on
+every corner step. Do not add dependencies the sheet does not state. Use
+expected_duration_s [3, 40] unless the sheet suggests otherwise.
+"""
+
 _CONSTRAINT_RULES = """\
 You compile a game rulebook into a constraint-form procedure spec: actions with
 preconditions, no fixed order. Each rule the player can break becomes one
@@ -144,9 +172,11 @@ Expressions may use only this vocabulary:
 
 
 def _system(kind: Kind) -> str:
-    rules = _DAG_RULES if kind == "dag" else _CONSTRAINT_RULES.format(
-        vocabulary=vocabulary_prompt()
-    )
+    rules = {
+        "dag": _DAG_RULES,
+        "jigsaw": _JIGSAW_RULES,
+        "constraints": _CONSTRAINT_RULES.format(vocabulary=vocabulary_prompt()),
+    }[kind]
     example = EXAMPLES[kind].read_text()
     return f"{rules}\nA correctly compiled example, for format only:\n\n{example}"
 
@@ -167,7 +197,7 @@ class Attempt:
     raw: str
     problems: list[str] = field(default_factory=list)
     warnings: list[Problem] = field(default_factory=list)
-    spec: DagSpec | ConstraintSpec | None = None
+    spec: DagSpec | JigsawSpec | ConstraintSpec | None = None
 
 
 def check(raw: str, kind: Kind) -> Attempt:
@@ -187,8 +217,9 @@ def check(raw: str, kind: Kind) -> Attempt:
             f"schema: {'.'.join(str(p) for p in e['loc'])}: {e['msg']}" for e in exc.errors()
         ]
         return attempt
-    if spec.kind != kind:
-        attempt.problems = [f"expected a {kind!r} spec, got {spec.kind!r}"]
+    form = "jigsaw" if isinstance(spec, JigsawSpec) else spec.kind
+    if form != kind:
+        attempt.problems = [f"expected a {kind!r} spec, got {form!r}"]
         return attempt
     problems = validate(spec)
     attempt.problems = [str(p) for p in errors(problems)]
@@ -199,7 +230,7 @@ def check(raw: str, kind: Kind) -> Attempt:
 
 def compile_source(
     source: str, kind: Kind, llm: LLM, source_name: str = ""
-) -> tuple[DagSpec | ConstraintSpec, list[Problem]]:
+) -> tuple[DagSpec | JigsawSpec | ConstraintSpec, list[Problem]]:
     """Compile a manual or rulebook. Returns the spec and its validation warnings.
 
     Raises `CompileError` if the spec still fails after one repair round.
@@ -266,7 +297,7 @@ class ClaudeLLM:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("source", type=Path, help="manual or rulebook, plain text")
-    ap.add_argument("--kind", choices=["dag", "constraints"], required=True)
+    ap.add_argument("--kind", choices=["dag", "jigsaw", "constraints"], required=True)
     ap.add_argument("-o", "--out", type=Path, required=True)
     ap.add_argument("--model", default=DEFAULT_MODEL)
     args = ap.parse_args(argv)

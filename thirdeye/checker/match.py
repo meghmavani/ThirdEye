@@ -12,7 +12,13 @@ from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
 
-from thirdeye.compiler.schema import ConstraintSpec, DagSpec, LoweredAction, Precondition
+from thirdeye.compiler.schema import (
+    ConstraintSpec,
+    DagSpec,
+    JigsawSpec,
+    LoweredAction,
+    Precondition,
+)
 from thirdeye.events import Alert, Event, Status
 
 
@@ -45,7 +51,7 @@ class MatchPolicy(Protocol):
         """Plain-language text for a step that was never performed."""
 
 
-def policy_for(spec: DagSpec | ConstraintSpec) -> MatchPolicy:
+def policy_for(spec: DagSpec | JigsawSpec | ConstraintSpec) -> MatchPolicy:
     """Select a policy from the spec's declared state model.
 
     Dispatch is on the `state_model` field, not the spec class: the two are
@@ -53,10 +59,12 @@ def policy_for(spec: DagSpec | ConstraintSpec) -> MatchPolicy:
     reuse the lattice policy without a new branch here.
     """
     from thirdeye.checker.rules_jenga import TowerLatticePolicy
+    from thirdeye.checker.rules_jigsaw import PieceGridPolicy
     from thirdeye.checker.rules_lego import StudGridPolicy
 
     policies: dict[str, type] = {
         "stud_grid": StudGridPolicy,
+        "piece_grid": PieceGridPolicy,
         "tower_lattice": TowerLatticePolicy,
     }
     cls = policies.get(spec.state_model)

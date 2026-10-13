@@ -24,7 +24,7 @@ from dataclasses import InitVar, dataclass, field
 
 from thirdeye.checker.evaluate import Environment, EvalError, evaluate, missing_names
 from thirdeye.checker.match import MatchPolicy, policy_for
-from thirdeye.compiler.schema import ConstraintSpec, DagSpec, LoweredAction
+from thirdeye.compiler.schema import ConstraintSpec, DagSpec, JigsawSpec, LoweredAction
 from thirdeye.events import (
     COMPLETED,
     OPEN,
@@ -73,7 +73,7 @@ class Checker:
     returns.
     """
 
-    spec: DagSpec | ConstraintSpec
+    spec: DagSpec | JigsawSpec | ConstraintSpec
     state: object | None = None
     #: FR-CHK-9. An event we are not confident about can only produce a yellow
     #: warning, whatever rule it broke.
@@ -186,20 +186,24 @@ class Checker:
 
     def _judge(self, ev: Event, action: LoweredAction) -> list[Alert]:
         """Run the alerting preconditions and record the action as performed."""
-        failing = self._failing(action.alerting(), ev)
-        raised = self._raise_all(
-            ev,
-            [
-                Alert(
-                    t=ev.t,
-                    code=pre.violation,
-                    rule=pre.id,
-                    text=self.policy.explain(pre, action, ev),
-                    target=action.id,
-                )
-                for pre in failing
-            ],
-        )
+        # One alert per violation code: a piece placed before a whole group it
+        # should follow breaks one rule once, however many members of the group
+        # are missing, and six identical alerts would also wreck the
+        # precision the evaluation measures (EV-ERR-1).
+        by_code: dict[str, list] = {}
+        for pre in self._failing(action.alerting(), ev):
+            by_code.setdefault(pre.violation, []).append(pre)
+        alerts = []
+        for pres in by_code.values():
+            text = self.policy.explain(pres[0], action, ev)
+            if len(pres) > 1:
+                more = ", ".join(self._dep_of(p.id) for p in pres)
+                text += f" (not yet done: {more})"
+            alerts.append(
+                Alert(t=ev.t, code=pres[0].violation, rule=pres[0].id, text=text,
+                      target=action.id)
+            )
+        raised = self._raise_all(ev, alerts)
         self._apply(ev, action, errored=bool(raised))
         return raised
 

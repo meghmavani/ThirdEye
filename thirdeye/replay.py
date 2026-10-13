@@ -40,6 +40,10 @@ Script format (YAML)::
         event: {kind: STEP_START, source: temporal, part: red_2x4}
 
 A brick is `color_WxH @ x,y[,layer[,rot]]` with an optional `conf=`.
+
+A jigsaw scene (`pieces:` / `add:` / `remove:`, same shape as bricks) is made of
+`r<row>c<col> @ col,row[,rot]` entries, also with an optional `conf=`; `? @ col,row`
+is a piece on the board the matcher could not identify.
 """
 
 from __future__ import annotations
@@ -53,16 +57,23 @@ from typing import Any
 
 import yaml
 
-from thirdeye.compiler.schema import PartRef, Pose, load_spec
+from thirdeye.compiler.schema import CellPose, PartRef, PieceRef, Pose, load_spec
 from thirdeye.events import Alert, Event, Slot
 from thirdeye.session import Session
 from thirdeye.sessionlog import SessionRecord
 from thirdeye.state.jenga.lattice import TowerLattice, full_tower
+from thirdeye.state.jigsaw.piece_grid import PieceGridState, PieceReading
 from thirdeye.state.lego.build_state import BuildState
 from thirdeye.state.lego.grid import Reading
 
 _BRICK = re.compile(
     r"^\s*(?P<color>[a-z]+)_(?P<size>\d+x\d+)\s*@\s*(?P<pose>[\d,\s]+?)"
+    r"(?:\s+conf=(?P<conf>[\d.]+))?\s*$"
+)
+
+
+_PIECE = re.compile(
+    r"^\s*(?P<piece>\?|r\d+c\d+)\s*@\s*(?P<pose>[\d,\s]+?)"
     r"(?:\s+conf=(?P<conf>[\d.]+))?\s*$"
 )
 
@@ -94,6 +105,24 @@ def brick(text: str) -> Reading:
     )
 
 
+def piece(text: str) -> PieceReading:
+    """Parse one piece of a jigsaw scene into the reading the board view would give."""
+    m = _PIECE.match(text)
+    if m is None:
+        raise ScriptError(f"cannot read piece {text!r}; expected 'r0c1 @ col,row[,rot]'")
+    nums = [int(n) for n in m["pose"].replace(" ", "").split(",") if n]
+    if not 2 <= len(nums) <= 3:
+        raise ScriptError(f"piece {text!r} needs col,row and optionally rot")
+    col, row, rot = (*nums, 0)[:3]
+    return PieceReading(
+        col=col,
+        row=row,
+        piece=None if m["piece"] == "?" else m["piece"],
+        rot=rot,
+        confidence=float(m["conf"]) if m["conf"] else 1.0,
+    )
+
+
 def _slots(value: Any) -> list[Slot]:
     """`[5, 1]` or `[[5, 1], [6, 0]]` -> slots."""
     if not value:
@@ -106,9 +135,15 @@ def _slots(value: Any) -> list[Slot]:
 def _event(data: dict[str, Any], t: float) -> Event:
     fields = dict(data)
     if "part" in fields:
-        fields["part"] = part(fields["part"])
+        fields["part"] = (
+            PieceRef(piece=fields["part"])
+            if re.fullmatch(r"r\d+c\d+", fields["part"])
+            else part(fields["part"])
+        )
     if "pose" in fields:
-        fields["pose"] = Pose(**fields["pose"])
+        fields["pose"] = (
+            CellPose(**fields["pose"]) if "col" in fields["pose"] else Pose(**fields["pose"])
+        )
     for key in ("src", "dst"):
         if key in fields:
             fields[key] = Slot(*fields[key])
@@ -144,6 +179,8 @@ class Replay:
     def run(self) -> SessionRecord:
         if isinstance(self.session.state, BuildState):
             self._film_lego()
+        elif isinstance(self.session.state, PieceGridState):
+            self._film_jigsaw()
         elif isinstance(self.session.state, TowerLattice):
             self._film_jenga()
         else:  # pragma: no cover - a new state model needs a filming rule here
@@ -177,6 +214,29 @@ class Replay:
                 self.raised += self.session.submit(_event(key["event"], t))
             while t < stop - 1e-9:
                 state.observe(t, bricks, hands_present=hands)
+                self.raised += self.session.pump()
+                t += dt
+
+    def _film_jigsaw(self) -> None:
+        """Film a jigsaw scene exactly as `_film_lego` films bricks."""
+        state = self.session.state
+        assert isinstance(state, PieceGridState)
+        pieces: list[PieceReading] = []
+        hands = False
+        dt = 1.0 / self.fps
+        stops = [float(k["t"]) for k in self.keyframes[1:]] + [self._end()]
+        for key, stop in zip(self.keyframes, stops, strict=True):
+            t = float(key["t"])
+            if "pieces" in key:
+                pieces = [piece(p) for p in key["pieces"] or []]
+            gone = {piece(p).cell for p in key.get("remove") or []}
+            pieces = [p for p in pieces if p.cell not in gone]
+            pieces += [piece(p) for p in key.get("add") or []]
+            hands = bool(key.get("hands", hands))
+            if "event" in key:
+                self.raised += self.session.submit(_event(key["event"], t))
+            while t < stop - 1e-9:
+                state.observe(t, pieces, hands_present=hands)
                 self.raised += self.session.pump()
                 t += dt
 

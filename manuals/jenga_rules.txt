@@ -1,0 +1,14 @@
+# Jenga -- the rules we enforce.
+# Standard 54-block tower: 18 layers of 3 blocks, each layer turned 90 degrees
+# from the one below. Players take a block from the tower and put it on top.
+
+1. You may take a block from any layer below the highest complete layer. The highest
+   layer that is full, and every layer above it, is off limits: never take from them.
+2. Take with one hand at a time. Using both hands on the tower to pull a block is a
+   foul.
+3. A pulled block goes on top of the tower. Finish a layer (all three blocks) before
+   you start a new one above it.
+4. The block must go into a free slot of the top layer while it is unfinished, or into
+   any slot of a new layer once the top layer is complete. Putting it anywhere else is
+   a foul.
+5. If the tower falls, the game is over.

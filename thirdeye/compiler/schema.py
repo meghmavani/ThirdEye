@@ -1,8 +1,8 @@
 """Procedure spec schemas (FR-CMP-1..4, IF-SPEC-1..5).
 
-Two surface forms, one checker interface:
+Surface forms, one checker interface:
 
-    DAG form         -- ordered steps with dependencies (LEGO, plan 4.2)
+    DAG form         -- ordered steps with dependencies (LEGO, jigsaw; plan 4.2)
     constraint form  -- actions with preconditions, no order (Jenga, plan 4.3)
 
 The checker is constraint-native (FR-CHK-2): both forms `lower()` to the same
@@ -16,9 +16,17 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Discriminator,
+    Field,
+    Tag,
+    TypeAdapter,
+    field_validator,
+)
 
 Rotation = Literal[0, 90, 180, 270]
 
@@ -72,6 +80,27 @@ class Pose(Strict):
         if self.rot in (90, 270):
             w, h = h, w
         return {(self.x + dx, self.y + dy) for dx in range(w) for dy in range(h)}
+
+
+class PieceRef(Strict):
+    """A jigsaw piece by its id on the box picture, `r<row>c<col>` (FR-JIG-1).
+
+    Identity comes from matching against the picture, so the id *is* the cell
+    the piece belongs to when the puzzle is done.
+    """
+
+    piece: str
+
+    def __str__(self) -> str:
+        return self.piece
+
+
+class CellPose(Strict):
+    """A jigsaw placement: a board cell and a quarter-turn rotation (FR-JIG-1)."""
+
+    col: int = Field(ge=0)
+    row: int = Field(ge=0)
+    rot: Rotation = 0
 
 
 # --- provenance (IF-SPEC-5) ---------------------------------------------------------
@@ -132,47 +161,97 @@ class DagSpec(Strict):
         return next((s for s in self.steps if s.id == step_id), None)
 
     def lower(self) -> list[LoweredAction]:
-        """Generate constraint-form preconditions from the dependency lists.
+        """Generate constraint-form preconditions from the dependency lists."""
+        return lower_steps(self.steps)
 
-        Hard and soft dependencies produce the same predicate -- `done(dep)` --
-        and differ only in what happens when it fails, which is exactly the
-        distinction FR-CHK-7 turns on.
-        """
-        actions = []
-        for step in self.steps:
-            pre = [
-                Precondition(
-                    id=f"{step.id}.hard.{dep}",
-                    expr=f"done({dep!r})",
-                    text=f"{dep} must be placed first to physically support this part",
-                    violation=HARD_DEP_VIOLATION,
-                    on_violation="reverify",
-                )
-                for dep in step.hard_depends_on
-            ]
-            pre += [
-                Precondition(
-                    id=f"{step.id}.soft.{dep}",
-                    expr=f"done({dep!r})",
-                    text=f"the manual places {dep} before this step",
-                    violation="out_of_order",
-                    on_violation="alert",
-                )
-                for dep in step.soft_depends_on
-            ]
-            actions.append(
-                LoweredAction(
-                    id=step.id,
-                    instruction=step.instruction,
-                    part=step.part,
-                    pose=step.pose,
-                    optional=step.optional,
-                    repeatable=False,
-                    preconditions=pre,
-                    effects=[f"place({step.id})"],
-                )
+
+def lower_steps(steps: list[Step] | list[JigsawStep]) -> list[LoweredAction]:
+    """Lower dependency steps to constraint form (shared by both DAG specs).
+
+    Hard and soft dependencies produce the same predicate -- `done(dep)` --
+    and differ only in what happens when it fails, which is exactly the
+    distinction FR-CHK-7 turns on.
+    """
+    actions = []
+    for step in steps:
+        pre = [
+            Precondition(
+                id=f"{step.id}.hard.{dep}",
+                expr=f"done({dep!r})",
+                text=f"{dep} must be placed first to physically support this part",
+                violation=HARD_DEP_VIOLATION,
+                on_violation="reverify",
             )
-        return actions
+            for dep in step.hard_depends_on
+        ]
+        pre += [
+            Precondition(
+                id=f"{step.id}.soft.{dep}",
+                expr=f"done({dep!r})",
+                text=f"the instructions place {dep} before this step",
+                violation="out_of_order",
+                on_violation="alert",
+            )
+            for dep in step.soft_depends_on
+        ]
+        actions.append(
+            LoweredAction(
+                id=step.id,
+                instruction=step.instruction,
+                part=step.part,
+                pose=step.pose,
+                optional=step.optional,
+                repeatable=False,
+                preconditions=pre,
+                effects=[f"place({step.id})"],
+            )
+        )
+    return actions
+
+
+# --- jigsaw DAG form (FR-JIG-1) -----------------------------------------------------
+
+class JigsawStep(Strict):
+    id: str
+    instruction: str
+    part: PieceRef
+    pose: CellPose
+    hard_depends_on: list[str] = Field(default_factory=list)
+    soft_depends_on: list[str] = Field(default_factory=list)
+    optional: bool = False
+    expected_duration_s: tuple[float, float] = (3.0, 40.0)
+
+    @field_validator("expected_duration_s")
+    @classmethod
+    def _duration_ordered(cls, v: tuple[float, float]) -> tuple[float, float]:
+        lo, hi = v
+        if lo < 0 or hi < lo:
+            raise ValueError(f"expected_duration_s must be [lo, hi] with 0 <= lo <= hi, got {v}")
+        return v
+
+
+class Grid(Strict):
+    cols: int = Field(gt=0)
+    rows: int = Field(gt=0)
+
+
+class JigsawSpec(Strict):
+    """Ordered jigsaw instructions: same checker, a flat grid of cells instead
+    of a stud grid. `hard_depends_on` is normally empty -- a piece has nothing
+    physically holding it up -- so every dependency is a stated order."""
+
+    procedure: str
+    kind: Literal["dag"] = "dag"
+    state_model: Literal["piece_grid"] = "piece_grid"
+    grid: Grid
+    steps: list[JigsawStep]
+    provenance: Provenance | None = None
+
+    def step(self, step_id: str) -> JigsawStep | None:
+        return next((s for s in self.steps if s.id == step_id), None)
+
+    def lower(self) -> list[LoweredAction]:
+        return lower_steps(self.steps)
 
 
 # --- constraint form (plan 4.3) -----------------------------------------------------
@@ -245,8 +324,8 @@ class LoweredAction(Strict):
 
     id: str
     instruction: str
-    part: PartRef | None = None
-    pose: Pose | None = None
+    part: PartRef | PieceRef | None = None
+    pose: Pose | CellPose | None = None
     optional: bool = False
     #: A DAG step is done once and never judged again. A constraint action --
     #: Jenga's `move` -- governs every matching event for the whole session.
@@ -263,17 +342,29 @@ class LoweredAction(Strict):
         return [p for p in self.preconditions if p.on_violation == "reverify"]
 
 
-ProcedureSpec = Annotated[DagSpec | ConstraintSpec, Field(discriminator="kind")]
+def _form(data: Any) -> str:
+    get = data.get if isinstance(data, dict) else lambda k, d=None: getattr(data, k, d)
+    if get("kind") == "constraints":
+        return "constraints"
+    return "jigsaw" if get("state_model") == "piece_grid" else "dag"
 
 
-_ADAPTER: TypeAdapter[DagSpec | ConstraintSpec] = TypeAdapter(ProcedureSpec)
+ProcedureSpec = Annotated[
+    Annotated[DagSpec, Tag("dag")]
+    | Annotated[JigsawSpec, Tag("jigsaw")]
+    | Annotated[ConstraintSpec, Tag("constraints")],
+    Discriminator(_form),
+]
 
 
-def parse_spec(data: dict) -> DagSpec | ConstraintSpec:
-    """Parse either form, dispatching on `kind` (IF-SPEC-1)."""
+_ADAPTER: TypeAdapter[DagSpec | JigsawSpec | ConstraintSpec] = TypeAdapter(ProcedureSpec)
+
+
+def parse_spec(data: dict) -> DagSpec | JigsawSpec | ConstraintSpec:
+    """Parse any form, dispatching on `kind` and `state_model` (IF-SPEC-1)."""
     return _ADAPTER.validate_python(data)
 
 
-def load_spec(path: str | Path) -> DagSpec | ConstraintSpec:
+def load_spec(path: str | Path) -> DagSpec | JigsawSpec | ConstraintSpec:
     """Load a spec file. A spec that does not validate does not run (IF-SPEC-1)."""
-    return parse_spec(json.loads(Path(path).read_text()))
+    return parse_spec(json.loads(Path(path).read_text(encoding="utf-8")))
