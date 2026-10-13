@@ -5,7 +5,7 @@
 ### Catch mistakes in a procedure *as they happen*, from video, with rules an LLM reads from the manual.
 
 ![Python](https://img.shields.io/badge/python-3.11+-3776AB?logo=python&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-229%20passing-2e7d32)
+![Tests](https://img.shields.io/badge/tests-382%20passing-2e7d32)
 ![Status](https://img.shields.io/badge/status-in%20development-b8860b)
 ![LLM](https://img.shields.io/badge/LLM-Claude-D97757)
 
@@ -120,11 +120,11 @@ flowchart LR
 
     classDef done fill:#d4edda,stroke:#2e7d32,color:#1b3d20
     classDef todo fill:#fff3cd,stroke:#b8860b,color:#4d3800
-    class L,V,G,K,S,C done
-    class CAM,HP,A,R todo
+    class L,V,G,K,S,C,HP,A,R done
+    class CAM todo
 ```
 
-<div align="center"><sub>🟩 built&nbsp;&nbsp;·&nbsp;&nbsp;🟨 in progress / to do</sub></div>
+<div align="center"><sub>🟩 built (tested on synthetic input)&nbsp;&nbsp;·&nbsp;&nbsp;🟨 needs real hardware</sub></div>
 
 <details>
 <summary><b>🔍 Design details</b></summary>
@@ -195,11 +195,29 @@ jenga_game: 6 moves judged, 6 alerts, 0 warnings
   ended: game_over
 ```
 
-**4. Compile a manual into a spec**
+**4. Replay a jigsaw run** with a planted error, then watch it in a browser
+
+```bash
+python -m thirdeye.replay scripts/scenarios/jigsaw_forest_12_interior_early.yaml
+python -m thirdeye.server.app            # http://127.0.0.1:8000/ , pick a session, press Start
+```
+
+**5. Run from a config** (`configs/`), and reproduce the numbers
+
+```bash
+python -m thirdeye.run configs/replay_jenga.yaml     # no hardware
+python -m eval.run_scenarios                         # precision / recall / false alerts per procedure
+python -m eval.compiler_eval --oracle                # the 16-source compiler corpus (ground truth scores 1.0)
+python -m eval.latency                               # per-stage latency vs the budget
+python -m thirdeye.explain.report game.json          # session report from a --log file
+```
+
+**6. Compile a manual into a spec**
 
 ```bash
 export ANTHROPIC_API_KEY=...
-python -m thirdeye.compiler.compile manuals/model_a.txt --kind dag -o specs/model_a.compiled.json
+python -m thirdeye.compiler.compile manuals/jigsaw_forest_12.txt --kind jigsaw -o specs/jigsaw.compiled.json
+python -m thirdeye.compiler.compile manuals/jenga_rules.txt --kind constraints -o specs/jenga.compiled.json
 ```
 
 > [!TIP]
@@ -224,20 +242,30 @@ python -m thirdeye.live --spec specs/model_a.json --zero-shot --video run.mp4 --
 
 ## 📊 Project status
 
+> [!IMPORTANT]
+> "Built" below means implemented and tested on **synthetic input drawn by this repository** (a ray-cast
+> tower, a drawn jigsaw board, scripted replays). Nothing has yet run on a real iPhone, a real webcam,
+> real pieces, or against a real LLM. See [the plan, Section 6](docs/ThirdEye_Project_Plan.md) for what
+> that does and does not show.
+
 | Component | | Notes |
 | :-- | :-: | :-- |
-| Spec schema + validator | ✅ | Cycles, collisions, safe expressions |
-| LLM compiler | ✅ | Structured output + one repair round |
-| Checker engine | ✅ | One loop for both spec forms |
-| Jenga lattice + collapse detection | ✅ | Currently assumes two straight-on side views |
-| Calibration + hand tracking | ✅ | ArUco homography, MediaPipe |
-| Session log + scripted replay | ✅ | |
-| iPhone LiDAR input | ⬜ | Record3D stream |
-| Diagonal-corner Jenga views | ⬜ | Two faces per camera, two cameras merged |
-| Jigsaw state + piece matching | ⬜ | |
-| Step recognizer | ⬜ | Benchmark on Assembly101 / EgoPER |
-| Server + web UI | ⬜ | FastAPI + WebSocket |
-| Evaluation scripts | ⬜ | |
+| Spec schema + validator | ✅ | Three forms: LEGO and jigsaw (dependency), Jenga (constraint) |
+| LLM compiler | ✅ | Structured output + one repair round; **not yet run with a real model** |
+| Checker engine | ✅ | One loop for every spec form; Jenga, jigsaw and LEGO rule sets |
+| Jenga lattice + collapse detection | ✅ | |
+| Jenga slot reading from depth | 🟡 | Diagonal-corner, two cameras merged, unobserved slots held. Synthetic depth only |
+| RGB-D input | 🟡 | Recorded frames work; the Record3D live source is written but untested on a phone |
+| Camera pose, clock offset | 🟡 | Pose from table markers; cross-correlation offset. Synthetic only |
+| Jigsaw state + piece matching | 🟡 | Tracker, box-picture matcher (margin, unidentified), board view. Synthetic pieces only |
+| Calibration + hand tracking | ✅ | ArUco homography; MediaPipe wrapper not run here (package absent) |
+| Session log + scripted replay | ✅ | 26 scenarios, all three procedures |
+| Server + web UI | ✅ | FastAPI + WebSocket (schema v1), single-file browser UI; React app not built |
+| Session report | ✅ | Plain (offline) or LLM-written; LLM path untested |
+| Evaluation scripts | 🟡 | Metrics, scenario / compiler / latency / ablation scripts; **no real-data numbers** |
+| Compiler eval corpus | ✅ | 16 sources + ground truth; no model output scored yet |
+| Step recognizer | 🟡 | MS-TCN, EV-SEG-1 metrics, data layout, occlusion hints; no benchmark run |
+| Recordings, labels, public datasets | ⬜ | Needs the rig |
 
 ---
 
@@ -248,10 +276,12 @@ python -m thirdeye.live --spec specs/model_a.json --zero-shot --video run.mp4 --
 <details open>
 <summary><b>🟫 Jenga</b></summary>
 
-- [ ] Stream colour + depth from the iPhone (Record3D)
-- [ ] Diagonal-corner mode for the lattice, with two cameras merged
-- [ ] Empty and pushed-out slot detection from depth
-- [ ] Jenga rulebook → compiled spec
+- [x] Jenga rulebook text → hand-built spec (`manuals/jenga_rules.txt`, `specs/jenga.json`)
+- [x] Diagonal-corner mode for the lattice, with two cameras merged
+- [x] Empty, pushed-out and unobserved slot detection from depth (synthetic)
+- [x] RGB-D input: recorded frames; Record3D source written
+- [ ] Compile the rulebook with a real model and score it
+- [ ] Stream colour + depth from the iPhone (Record3D) and tune thresholds on real clips
 - [ ] Record and label real games
 
 </details>
@@ -259,10 +289,11 @@ python -m thirdeye.live --spec specs/model_a.json --zero-shot --video run.mp4 --
 <details open>
 <summary><b>🧩 Jigsaw</b></summary>
 
-- [ ] Jigsaw spec: grid, pieces, ordered steps and rules
-- [ ] Piece-grid state tracker
-- [ ] Piece position + rotation by matching against the box picture
-- [ ] Jigsaw instructions → compiled spec
+- [x] Jigsaw spec: grid, pieces, ordered steps and rules
+- [x] Piece-grid state tracker
+- [x] Piece position + rotation by matching against the box picture
+- [x] Jigsaw instructions → spec (`manuals/jigsaw_forest_12.txt`, hand-built; compile run pending)
+- [ ] Try it on a real puzzle: glare, shadows, hands
 - [ ] Record and label real runs
 
 </details>
@@ -270,10 +301,12 @@ python -m thirdeye.live --spec specs/model_a.json --zero-shot --video run.mp4 --
 <details>
 <summary><b>🔧 Shared</b></summary>
 
-- [ ] Step recognizer (`temporal/`)
-- [ ] LLM session report (`explain/`)
-- [ ] FastAPI + WebSocket server and web UI
-- [ ] Evaluation: precision/recall per error, false alerts per run, alert delay, latency
+- [x] Step recognizer (`temporal/`): model, metrics, data layout (no benchmark yet)
+- [x] LLM session report (`explain/`)
+- [x] FastAPI + WebSocket server and browser UI
+- [x] Evaluation scripts: precision/recall per error, false alerts per run, compiler corpus, latency
+- [ ] React UI
+- [ ] Run the evaluation on real data and a public benchmark
 - [x] Update `docs/` to the current direction
 
 </details>
@@ -295,25 +328,32 @@ python -m thirdeye.live --spec specs/model_a.json --zero-shot --video run.mp4 --
 
 ```
 thirdeye/
-├── compiler/      📖 schema · validator · safe expressions · LLM compiler
-├── perception/    👁️ calibration · hands · detection · pipeline
+├── compiler/      📖 schema · validator · safe expressions · LLM compiler · jigsaw spec builder
+├── perception/    👁️ calibration · hands · camera model · RGB-D · slot reading · piece matching · board view
 ├── state/
 │   ├── base.py       WorldState interface
 │   ├── jenga/        tower lattice · collapse detection
+│   ├── jigsaw/       piece grid
 │   └── lego/         stud grid · build tracker   (parked)
-├── checker/       ⚖️ engine · expression evaluator · rule sets
+├── checker/       ⚖️ engine · expression evaluator · rule sets (Jenga, jigsaw, LEGO)
+├── temporal/      step recognizer: MS-TCN · metrics · occlusion hints
+├── explain/       session report
+├── server/        FastAPI · WebSocket schema · browser UI
 ├── session.py     joins a tracker and the checker for one run
 ├── sessionlog.py  JSON log, the report's only input
 ├── replay.py      scripted sessions through the real pipeline
-└── live.py        camera in, alerts out
+├── run.py         run a procedure from a YAML config
+└── live*.py       camera in, alerts out (jigsaw, Jenga, LEGO)
+eval/              metrics · scenario, compiler, latency and ablation scripts · synthetic scenes
+configs/           YAML per procedure / rig
 specs/             procedure specs (JSON)
-manuals/           text manuals and rulebooks
-scripts/           markers · scenario generator · model fetch
-tests/             unit + scenario tests
+manuals/           text manuals and rulebooks · eval_corpus/ (16 sources + ground truth)
+scripts/           markers · scenario / spec / corpus generators · model fetch
+tests/             unit + scenario + end-to-end tests
 docs/              project plan + requirements
 ```
 
-Still empty: `temporal/`, `explain/`, `server/`, `ui/`, `eval/`, `configs/`.
+Not yet built: `ui/` (the React app; a single-file browser UI ships in `thirdeye/server/static/`).
 
 </details>
 

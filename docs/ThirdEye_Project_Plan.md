@@ -2,6 +2,8 @@
 
 Plan revised 2026-10-12 (supersedes the LEGO-first plan of 2026-09-18) · Week numbers count from the week of 2026-09-14, so this revision is written in week 5.
 
+**Status, 2026-10-14:** the software side of every must-have is built and tested against *synthetic* input; nothing has yet touched real hardware or real video. Section 6 has the item-by-item status, and says for each what "built" does and does not show.
+
 ThirdEye watches someone follow a procedure through a camera and flags missed, out-of-order or wrongly executed steps in real time. It uses a machine-readable procedure spec that an LLM compiles from any written source — an instruction sheet or a rulebook.
 
 Two demo procedures, chosen to be different in kind rather than different in decoration:
@@ -88,7 +90,7 @@ The LLM never sees raw video. It works only with text: it compiles the procedure
 
 ### 2.1 LLM procedure compiler (offline)
 
-Two compilation targets, one output interface. **Built and tested** for the LEGO dependency form and the Jenga constraint form; the jigsaw schema and both real source texts are still to do.
+Two compilation targets, one output interface. **Built and tested** for the jigsaw and LEGO dependency forms and the Jenga constraint form. The Jenga rulebook (`manuals/jenga_rules.txt`), the jigsaw sheet (`manuals/jigsaw_forest_12.txt`) and a 16-source eval corpus are committed, with hand-built specs under `specs/`; **compiling them with a real model has not been run** (no API key in the build environment), so compiler accuracy is still unmeasured.
 
 **Target A — constraint set (Jenga).**
 
@@ -114,7 +116,7 @@ Two compilation targets, one output interface. **Built and tested** for the LEGO
 
 - **iPhone Pro with LiDAR** at one corner of the tower, streaming colour and depth (Record3D). A **second camera** sits at the opposite corner.
 - Depth is the point: every block is the same colour, so a pushed-out or missing block is hard to see in colour but obvious as a change in distance.
-- **Diagonal-corner mode.** From a corner a camera sees two faces of the tower at an angle, not one face straight on. Each camera therefore contributes two faces, and the two cameras are merged. Every slot is visible end-on from at least one face of one camera. This replaces the earlier assumption of two orthogonal straight-on side views, which the current lattice code still makes (Section 6, ASM-4).
+- **Diagonal-corner mode.** From a corner a camera sees two faces of the tower at an angle, not one face straight on. Each camera therefore contributes two faces, and the two cameras are merged. Every slot is visible end-on from at least one face of one camera. This replaces the earlier assumption of two orthogonal straight-on side views, which the lattice code originally made (Section 6, ASM-4). The slot reader now works in diagonal-corner mode (`perception/tower_view.py`), so the tracker no longer depends on that assumption; whether it holds on a real LiDAR is untested.
 - Markers on the table around the tower base plus the known block size (75 × 25 × 15 mm) give scale.
 
 **Jigsaw rig.** One overhead **webcam** above a board with printed **ArUco markers** at the four corners. OpenCV detects them and computes a **homography** from pixels to board-cell coordinates, so a piece lands on the grid whatever the camera angle. (This is the same calibration code the LEGO stud grid uses.)
@@ -137,14 +139,15 @@ An interface (`state/base.py`) with one implementation per procedure. All expose
 - An 18 × 3 occupancy array plus per-layer orientation (alternating 90 degrees, derived rather than observed).
 - Events are `REMOVE (layer, slot)` and `ADD (layer, slot)`, joined by a pairer into a single `MOVE`, plus `COLLAPSE` as a terminal event (a large single-frame drop in tower height).
 - **Preconditions are judged against the state before the move.** The tracker freezes while hands occlude the tower and updates after, so by the time a move reaches the checker the tower has already changed. Judging "finish a layer before starting the next" against the new state would clear every violation of it.
-- Filling the lattice from depth and two diagonal views is perception work and is still to do.
+- The lattice is filled from depth and two diagonal views by `perception/tower_view.py`: each slot has up to two end-on windows, residuals against the face plane decide occupied / empty / pushed out / unobserved, and an unobserved slot keeps its previous belief so no event is invented. Built and tested on a ray-cast synthetic tower only.
 
-**Jigsaw — piece grid (to do).**
+**Jigsaw — piece grid (built).**
 
 - A `cols × rows` occupancy of cells, each holding the identified piece and its rotation (or unidentified, or empty).
 - A piece counts as placed when it has sat still in a cell for about 0.5 s after a hand leaves.
 - Events are `ADD piece @ (col, row, rot)` and `REMOVE`, in the same event schema as the other trackers.
 - Height is not modelled; there is nothing to stack.
+- Unidentified pieces occupy their cell but emit no event (FR-JIG-4). Implemented in `state/jigsaw/piece_grid.py`.
 
 **LEGO — stud grid (built, parked).** A list of placed bricks `(type, x, y, layer, rotation)` with the same stability filter and diff.
 
@@ -243,49 +246,58 @@ The temporal model runs asynchronously and never blocks a frame. The demo reads 
 
 ```
 thirdeye/
-├── manuals/                   # ● model_a.txt (LEGO) · ○ jenga_rules.txt · ○ jigsaw_*.txt
-│   └── eval_corpus/           # ○ 15-20 hand-written sources + ground-truth specs
-├── specs/                     # ● example_constraints.json · example_dag.json · model_a.json
-├── configs/                   # ○ YAML per procedure / camera rig
+├── manuals/                   # ● model_a.txt · jenga_rules.txt · jigsaw_forest_12.txt
+│   └── eval_corpus/           # ● 16 sources + ground-truth specs (j01-09, r01-04, l01-03)
+├── specs/                     # ● example_*.json · model_a.json · jenga.json · jigsaw_forest_12.json
+├── configs/                   # ● YAML per procedure / rig (python -m thirdeye.run)
 ├── thirdeye/
 │   ├── events.py              # ● event, alert and log schemas
 │   ├── session.py             # ● joins a tracker and the checker for one run
 │   ├── sessionlog.py          # ● JSON log, the report's only input
 │   ├── replay.py              # ● scripted sessions through the real pipeline
-│   ├── live.py                # ◐ camera in, alerts out (LEGO path today)
+│   ├── run.py                 # ● run any procedure from a YAML config
+│   ├── live.py                # ◐ camera in, alerts out (LEGO path)
+│   ├── live_jigsaw.py         # ● overhead webcam loop (needs a camera; tested on synthetic frames)
+│   ├── live_jenga.py          # ● recorded RGB-D loop (Record3D live source: untested on a phone)
 │   ├── compiler/
-│   │   ├── schema.py          # ● DagSpec, ConstraintSpec · ○ piece_grid state model
+│   │   ├── schema.py          # ● DagSpec, JigsawSpec, ConstraintSpec
 │   │   ├── expr.py            # ● safe expression whitelist + evaluator
 │   │   ├── validate.py        # ●
-│   │   └── compile.py         # ● LLM compiler, one repair round
+│   │   ├── jigsaw.py          # ● hand-built jigsaw specs (corpus ground truth, demo spec)
+│   │   └── compile.py         # ● LLM compiler, one repair round (dag | jigsaw | constraints)
 │   ├── perception/
 │   │   ├── calibrate.py       # ● ArUco + homography
-│   │   ├── hands.py           # ●
+│   │   ├── hands.py           # ● (MediaPipe wrapper not run here: package absent)
 │   │   ├── detect.py          # ◐ YOLO part detector (LEGO)
-│   │   ├── pipeline.py        # ●
-│   │   ├── depth.py           # ○ Record3D RGB-D input
-│   │   ├── tower_view.py      # ○ diagonal-corner views -> lattice, two cameras merged
-│   │   └── piece_match.py     # ○ match pieces against the box picture
+│   │   ├── pipeline.py        # ● (LEGO)
+│   │   ├── camera_model.py    # ● pinhole camera, pose from table markers
+│   │   ├── depth.py           # ● RGB-D frames, recorded source, Record3D source (untested live)
+│   │   ├── sync.py            # ● clock offset between cameras, frame pairing
+│   │   ├── tower_view.py      # ● diagonal-corner slot reading from depth, two cameras merged
+│   │   ├── jenga_pipeline.py  # ● frames -> lattice -> checker, hand count, collapse gating
+│   │   ├── piece_match.py     # ● match pieces against the box picture, margin, unidentified
+│   │   ├── board.py           # ● rectify, occupied cells, per-cell readings
+│   │   └── jigsaw_pipeline.py # ● frame -> calibrate -> board -> readings
 │   ├── state/
 │   │   ├── base.py            # ● WorldState interface
 │   │   ├── jenga/             # ● lattice.py, collapse.py
-│   │   ├── jigsaw/            # ○ piece-grid tracker
+│   │   ├── jigsaw/            # ● piece_grid.py
 │   │   └── lego/              # ◐ grid.py, build_state.py
 │   ├── checker/
 │   │   ├── engine.py          # ● constraint-native engine
 │   │   ├── evaluate.py        # ● expression evaluator
 │   │   ├── match.py           # ●
 │   │   ├── rules_jenga.py     # ●
-│   │   ├── rules_jigsaw.py    # ○
+│   │   ├── rules_jigsaw.py    # ●
 │   │   └── rules_lego.py      # ◐
-│   ├── temporal/              # ○ features, MS-TCN++, training, smoothing
-│   ├── explain/               # ○ event log -> LLM session report
-│   └── server/                # ○ FastAPI app + WebSocket stream
-├── ui/                        # ○ React app
-├── eval/                      # ○ metrics and one run script per experiment
-├── scripts/                   # ● make_markers.py, make_scenarios.py, fetch_models.sh · ○ recording
+│   ├── temporal/              # ● metrics, smoothing, MS-TCN, data layout, occlusion hints (no benchmark run)
+│   ├── explain/               # ● report.py: event log -> report (plain, or LLM)
+│   └── server/                # ● FastAPI app, WebSocket schema v1, hub, browser UI
+├── ui/                        # ○ React app (a single-file browser UI ships in server/static/)
+├── eval/                      # ● metrics, scenario / compiler / latency / perception scripts, synthetic scenes
+├── scripts/                   # ● make_markers, make_scenarios, make_specs, make_corpus, fetch_models.sh · ○ recording
 ├── docs/                      # plan + requirements
-└── tests/                     # ● 229 tests
+└── tests/                     # ● 382 tests
 ```
 
 ### 4.2 Procedure spec — dependency form (jigsaw; LEGO shown as built)
@@ -490,23 +502,37 @@ The minimum project is **a Jenga game checked live from a rulebook, and a jigsaw
 
 ### Done
 
-- Spec schema, validator, safe expressions; LLM compiler with one repair round (both spec forms).
-- Checker engine, one loop for both spec forms; Jenga and LEGO rule sets.
-- Jenga lattice and collapse detection (assumes two straight-on views).
-- LEGO stud grid and build tracker; calibration; hand tracking; session log and scripted replay.
-- 229 tests; ten scripted scenarios (nine LEGO, one Jenga).
+- Spec schema (three forms: LEGO and jigsaw dependency, Jenga constraint), validator, safe expressions; LLM compiler with one repair round for all three.
+- Checker engine, one loop for every spec form; Jenga, LEGO and jigsaw rule sets. One alert per violation code per event, so a piece placed before a whole group it should follow is one `out_of_order`, not six.
+- Jenga lattice and collapse detection; **slot reading from depth in diagonal-corner mode, two cameras merged, unobserved slots held** (`perception/tower_view.py`); camera pose from table markers; recorded RGB-D input; clock-offset estimation; the frame -> lattice -> checker pipeline.
+- Jigsaw piece-grid tracker; box-picture matcher with margin and the unidentified rule; board view (rectify, occupied cells, readings); the frame -> readings pipeline.
+- LEGO stud grid and build tracker; calibration; hand tracking wrapper; session log and scripted replay.
+- Session report (plain, or LLM); FastAPI + WebSocket server (schema v1) and a browser UI; YAML-driven runs.
+- Eval: detection metrics (per-code precision / recall, false alerts per correct run, delay), state metrics, compiler scorer with the DR-CRP-3 taxonomy, 16-source corpus, latency table, synthetic perception ablations.
+- Step-recognizer track: EV-SEG-1 metrics, smoothing, MS-TCN, feature/label layout, occlusion hint fusion.
+- 382 tests; 26 scripted scenarios (nine LEGO, ten jigsaw, seven Jenga) in `scripts/scenarios/`.
+
+### What "built" does and does not show
+
+Everything above runs and is tested, but the camera side is tested only on **synthetic input drawn by this repository**: a ray-cast block model for the tower, a drawn board for the jigsaw. That checks the geometry, the logic and the failure handling (a hand in front, a dropped camera, two cameras disagreeing, a piece that matches nothing). It does not check a real LiDAR's noise, real pieces, glare, real hands, or the iPhone stream. Specifically not yet exercised: MediaPipe hands (package not installed here), the Record3D live source, any real recording, a compiled-by-LLM spec (no API key here), any public benchmark. Every number the evaluation scripts print on synthetic input is labelled as such and is a check on the machinery, not a result.
 
 ### Must have
 
-- Jenga rulebook compiled to a validated constraint spec.
-- iPhone RGB-D input; lattice filled from depth in diagonal-corner mode with two cameras merged.
-- Live Jenga demo: illegal source layer, layer started early, two-handed move, wrong replacement, collapse.
-- Jigsaw schema; piece-grid tracker; piece matching against the box picture.
-- Live jigsaw demo: out of order, missed step, wrong part, wrong position or rotation.
-- The live path at 15+ FPS within the Section 3.1 budget.
-- Compiler accuracy measured on the eval corpus.
+Status 2026-10-14: **software built, hardware and real-data validation outstanding.**
+
+| Must-have | Software | Still needed |
+| --- | --- | --- |
+| Jenga rulebook compiled to a validated constraint spec | rulebook text, hand-built spec, compiler + validator | run the real compile; measure |
+| iPhone RGB-D input; lattice from depth, diagonal-corner, two cameras merged | reader, merge, pipeline, recorded input, Record3D source | a phone; real clips; threshold tuning; EV-STA-3 on labelled states |
+| Live Jenga demo (all five fouls) | all five caught end to end on synthetic frames | real rig |
+| Jigsaw schema; piece-grid tracker; box-picture matching | all built | a real puzzle; EV-STA-4 on real pieces |
+| Live jigsaw demo (out of order, missed, wrong part, wrong position/rotation) | all caught end to end on synthetic frames | real rig and webcam |
+| Live path at 15+ FPS within the Section 3.1 budget | benchmark script; every measurable stage far under budget on a dev laptop | Record3D decode, MediaPipe and WebSocket stages, on the demo laptop |
+| Compiler accuracy on the eval corpus | corpus + scorer; oracle scores 1.0 | compile the corpus with a real model |
 
 ### Should have (in priority order)
+
+Status: 1 built (single-file browser UI; the React app is not), 2 built (confidence-graded warnings; the false-alert target is unmeasured on real runs), 3 built, 4 not started (needs a second jigsaw puzzle and a real compile), 5 model and metrics built, no benchmark run, 6 partly (ghost overlay and occlusion hints built; spec editor not).
 
 1. A **server and web UI**: checklist, legality panel, alerts.
 2. **Soft warnings** and a false-alert target met on both procedures.
@@ -577,11 +603,11 @@ Weeks 1–4 happened under the old plan. Week 13 is reserved slack and is not al
 | --- | --- | --- |
 | 1–2 | Plan and requirements; spec schema (both forms); compiler v1 + validator | ✅ done |
 | 3–4 | Checker engine, Jenga rule set and lattice, LEGO state, calibration, hands, session log and replay | ✅ done (229 tests) |
-| 5 | Plan and requirements rewritten for Jenga + jigsaw; write the Jenga rulebook; Record3D input spike; jigsaw schema extension | ◀ now |
-| 6 | **End-to-end v0 on Jenga:** RGB-D in → lattice → checker → alerts, one corner first; measure the latency budget; jigsaw board calibration | |
-| 7 | Diagonal-corner mode and second camera merged; push-out detection from depth; jigsaw piece-grid tracker; start recording Jenga games | |
-| 8 | Jigsaw piece matching; compile the jigsaw instructions; write the eval corpus; label Jenga recordings; **freeze splits** | |
-| 9 | **End-to-end v0 on jigsaw**; Jenga violation P/R on recorded games; step-recognizer box begins (benchmark features) | |
+| 5 | Plan and requirements rewritten for Jenga + jigsaw; write the Jenga rulebook; Record3D input spike; jigsaw schema extension | ✅ done, except the Record3D spike: the source is written, no phone has run it |
+| 6 | **End-to-end v0 on Jenga:** RGB-D in → lattice → checker → alerts, one corner first; measure the latency budget; jigsaw board calibration | ◐ software done on synthetic frames; latency measured on a dev machine only; needs real clips |
+| 7 | Diagonal-corner mode and second camera merged; push-out detection from depth; jigsaw piece-grid tracker; start recording Jenga games | ◐ software done (merge, push-out, tracker); recording not started |
+| 8 | Jigsaw piece matching; compile the jigsaw instructions; write the eval corpus; label Jenga recordings; **freeze splits** | ◐ matching and corpus done; real compile, labelling and split freeze not |
+| 9 | **End-to-end v0 on jigsaw**; Jenga violation P/R on recorded games; step-recognizer box begins (benchmark features) | ◐ jigsaw v0 software done on synthetic frames; no recordings, no benchmark features |
 | 10 | Record and label jigsaw runs; soft warnings; false-alert tuning; FastAPI server | |
 | 11 | Full evaluation: both procedures, compiler corpus, baselines, ablations, latency; step-recognizer numbers | |
 | 12 | UI polish: checklist, legality panel, alerts; LLM report; demo video | |

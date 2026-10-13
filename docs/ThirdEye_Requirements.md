@@ -74,7 +74,7 @@ Priority uses MoSCoW, aligned to plan §6:
 
 Verification method per requirement: **T** = automated test, **D** = live demonstration, **A** = analysis / measurement against recorded data, **I** = inspection or review.
 
-**Built** in the *Status* sense of this document means implemented and covered by the 229-test suite as of 2026-10-12; it does not mean evaluated against real video.
+**Built** in the *Status* sense of this document means implemented and covered by the automated suite (229 tests as of 2026-10-12; 382 as of 2026-10-14); it does not mean evaluated against real video. As of 2026-10-14 every requirement marked *Built (2026-10-14)* below was verified on **synthetic input only**: scenes drawn or ray-cast by this repository, scripted replays, and stand-in models. Requirements whose verification needs hardware, real recordings, an API key or a public dataset remain open and are called out.
 
 ---
 
@@ -96,7 +96,7 @@ Verification method per requirement: **T** = automated test, **D** = live demons
 
 ### 3.1 FR-CMP — LLM procedure compiler (plan §2.1, §4.2, §4.3)
 
-Status: both forms are **built** for the LEGO and Jenga instances; the jigsaw schema extension and the real source texts are to do.
+Status: all three forms are **built (2026-10-14)**: LEGO and jigsaw dependency forms and the Jenga constraint form. The Jenga rulebook, the jigsaw sheet and a 16-source corpus are committed. FR-CMP-12 is met for the texts and hand-built specs; compiling them with a real model has **not** been run.
 
 | ID | Requirement | Pri | Verify |
 | --- | --- | --- | --- |
@@ -170,7 +170,7 @@ Status: both forms are **built** for the LEGO and Jenga instances; the jigsaw sc
 | FR-STA-4 | The tracker shall emit a state diff after each placement or removal as an event, e.g. `ADD piece r0c1 @ (1,0,rot0)`. | M | T |
 | FR-STA-5 | ~~LEGO layer inference with a side camera.~~ **Parked** with LEGO; jigsaw has no height. | P | — |
 | FR-STA-6 | The tracker shall support a **forced re-verification** request for named prior steps, resolved once the workspace view is clear (see FR-CHK-7). *Built.* | M | T |
-| FR-STA-7 | The Jenga tracker shall maintain an 18 × 3 occupancy array plus per-layer orientation, filled from the camera views (diagonal-corner mode, FR-DEP-1/2). The lattice and its occupancy snapshot are *built*; filling them from depth is to do. | M | T |
+| FR-STA-7 | The Jenga tracker shall maintain an 18 × 3 occupancy array plus per-layer orientation, filled from the camera views (diagonal-corner mode, FR-DEP-1/2). The lattice and its occupancy snapshot are *built*, and filling them from depth is *built (2026-10-14)* in `perception/tower_view.py`, verified on ray-cast synthetic depth only. | M | T |
 | FR-STA-8 | The Jenga tracker shall emit `ADD (layer, slot)` and `REMOVE (layer, slot)` events, pair them into one `MOVE`, and emit `COLLAPSE` as a terminal event detected from a large single-frame drop in tower height. *Built.* | M | T, D |
 | FR-STA-9 | Jenga preconditions shall be judged against the tower **as it stood before the move**, advancing the baseline only from a reading with no block in hand. *Built.* | M | T |
 | FR-STA-10 | The jigsaw tracker shall maintain a `cols × rows` occupancy of cells, each holding the identified piece and rotation, or *unidentified*, or empty. | M | T |
@@ -628,6 +628,48 @@ Weeks count from the week of 2026-09-14. MG-1 to MG-4 are met; MG-5 to MG-14 wer
 | OQ-8 | Which Record3D access route (USB or Wi-Fi) and which RGB-D reader library? | FR-CAL-9, SW-14, NFR-PERF-12 | Week 6 |
 | OQ-9 | Which jigsaw puzzles (piece count, distinctive pieces), and which is held out? | DR-JIG-1, HW-14, DR-JIG-5 | Week 6 |
 | OQ-10 | Is the jigsaw one fixed instruction sheet, or also a looser border-first variant (constraint form)? | ASM-8, FR-CMP-12 | Week 6 |
+
+---
+
+## 13a. Implementation status, 2026-10-14
+
+Where each open requirement stands. **Synthetic** = built and tested on input drawn by this repository only. **Open** = needs something not available in the build environment (a phone, a camera, recordings, an API key, a dataset). Nothing below is claimed as an evaluation result.
+
+| Requirement(s) | Status | Where | What is still needed |
+| --- | --- | --- | --- |
+| FR-CMP-1..7, 10, 11 (jigsaw kind added) | Built | `compiler/` | — |
+| FR-CMP-12 | Texts + hand-built specs committed; **real compile open** | `manuals/`, `specs/`, `scripts/make_specs.py` | an API key; run `compiler.compile` |
+| FR-CMP-8, 9 | Open (C, S6) | — | teach-by-demonstration; spec editor |
+| FR-CAL-1, 3, 4, 7 | Built (unchanged) | `perception/calibrate.py` | — |
+| FR-CAL-8 | Synthetic | `perception/camera_model.py` (pose from table markers), `tower_view.py` | a real rig |
+| FR-CAL-9 | Recorded input built; live source written, **untested on a phone** | `perception/depth.py` | a phone; OQ-8 |
+| FR-CAL-10 | Offset estimation and frame pairing built | `perception/sync.py` | measured on two real cameras |
+| FR-PER-1, 6 | Built; the MediaPipe wrapper is **not run here** (package absent) | `perception/hands.py` | install `live` extra; run |
+| FR-PER-4 (tracking) | **Open** | — | ByteTrack; not needed by the current trackers, which key on cells |
+| FR-DEP-1, 2, 3 | Synthetic | `perception/tower_view.py` | labelled real clips (EV-STA-3) |
+| FR-DEP-4 | Synthetic (push-out flagged from depth) | `perception/tower_view.py` | real noise level |
+| FR-DEP-5 | Open (C) | — | only if depth thresholds prove insufficient |
+| FR-JIG-1 | Built | `compiler/schema.py` | — |
+| FR-JIG-2, 3 | Synthetic | `perception/board.py`, `piece_match.py` | a real puzzle; glare, shadows, hands |
+| FR-JIG-4, 5 | Built, tested | `piece_match.py`, `checker/rules_jigsaw.py` | — |
+| FR-JIG-6 | Open (S4) | — | a held-out puzzle |
+| FR-STA-1..4, 6..10 | Built | `state/` | — |
+| FR-STA-3 on jigsaw / FR-STA-10 | Built | `state/jigsaw/piece_grid.py` | — |
+| FR-TMP-1..6 | Model, metrics, data layout, hints built; **no benchmark run** | `temporal/` | a dataset (DR-PUB-1/2); an encoder; a GPU |
+| FR-CHK-1..12 | Built | `checker/` | — |
+| FR-UI-1..4, 6, 7 | Built as a single-file browser UI plus an OpenCV overlay; **React app not built** | `server/`, `live_jigsaw.py` | review on a real session |
+| FR-UI-5 | Built (ghost in the OpenCV overlay) | `live_jigsaw.py`, `live.py` | — |
+| FR-EXP-1, 2 | Built; LLM path untested against a real model | `explain/report.py` | an API key |
+| FR-SYS-1 | Built per procedure on synthetic frames | `live_jigsaw.py`, `live_jenga.py` | real cameras |
+| FR-SYS-2 | Built | `run.py`, `configs/` | — |
+| FR-SYS-3 | Partly: a dropped camera frame and unobserved slots are tolerated; marker loss is reported | `perception/` | a soak test on real hardware |
+| FR-SYS-4, 5 | Built (plain report needs no network; replay) | `explain/`, `replay.py` | — |
+| NFR-PERF-3, 6, 7, 8, 13 | Measured on a dev machine, far under budget | `python -m eval.latency` | re-measure on the demo laptop |
+| NFR-PERF-1, 2, 4, 9, 10, 12 | **Not measured** | — | hardware stages |
+| NFR-REL-2, EV-ERR-3 | Scripted scenarios: 0 false alerts on correct runs | `python -m eval.run_scenarios` | real recordings |
+| DR-CRP-1..4 | Corpus (16 sources) and scorer built; oracle scores 1.0; **no LLM output scored** | `manuals/eval_corpus/`, `eval/compiler_eval.py` | run the compiler over it |
+| DR-JEN-*, DR-JIG-*, DR-PUB-* | **Open** | — | recordings, labels, datasets |
+| EV-STA-*, EV-ERR-1, 4, EV-JEN-*, EV-LAT-1, EV-CMP-* | Scripts ready; **no real numbers yet** | `eval/` | the data above |
 
 ---
 
