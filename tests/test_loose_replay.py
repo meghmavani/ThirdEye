@@ -2,8 +2,9 @@
 """
 Replays recorded depth frames (game_04) through the server's loose-block detector, then fakes an 8 mm push-out
 of one block to see whether it turns amber, how fast, and whether anything else does by mistake.
-    MARKER_MAP=off MARKER_HALF=91 LIDAR_SAVE_DIR=game_04 .venv/bin/python test_loose_replay.py [push_mm]
+    MARKER_MAP=off MARKER_HALF=91 LIDAR_SAVE_DIR=game_04 .venv/bin/python tests/test_loose_replay.py [push_mm]
 """
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), "tracker"))
 import glob
 import os
 import sys

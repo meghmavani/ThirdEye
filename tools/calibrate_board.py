@@ -7,11 +7,12 @@ pose solver then fits that map to every picture with 3-4 px of leftover error.  
 marker that is a little tilted or higher than its neighbours is allowed), solved together with the camera pose of every view
 (bundle adjustment): the map that explains all the views from all the places the phones have stood.
 
-    .venv/bin/python calibrate_board.py            # uses the saved frames since --since and the live pictures; writes marker_map.json
-    .venv/bin/python calibrate_board.py --dry-run  # only report
+    .venv/bin/python tools/calibrate_board.py            # uses the saved frames since --since and the live pictures; writes marker_map.json
+    .venv/bin/python tools/calibrate_board.py --dry-run  # only report
 
 Needs: iphone_saved/ frames (iPhone: *_rgb.jpg + *_intrinsics.json, Android: *_android.jpg), and optionally the live server.
 """
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), "tracker"))
 import argparse
 import glob
 import json
@@ -23,8 +24,8 @@ import urllib.request
 import cv2
 import numpy as np
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+pass
 import face_crops as fc
 import tower_points as tp
 

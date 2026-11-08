@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Score the layer-finder against the player's typed corrections.   .venv/bin/python label_eval.py [run_dir]"""
+"""Score the layer-finder against the player's typed corrections.   .venv/bin/python tools/label_eval.py [run_dir]"""
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), "tracker"))
 import glob, json, os, sys
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+pass  # tracker path set by the header above
 import cv2, numpy as np
 import face_crops as fc, move_infer as mi
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 run = sys.argv[1] if len(sys.argv) > 1 else sorted(glob.glob(f"{HERE}/dataset/live_*"), key=os.path.getmtime)[-1]
 recs = [json.loads(l) for l in open(f"{run}/labels.jsonl")]
 marks = {r["seq"]: r for r in recs if "mark_ms" in r}

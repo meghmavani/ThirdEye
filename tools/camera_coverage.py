@@ -5,11 +5,12 @@ tower's x faces, even layers (2,4,6..) on its y faces.  A phone sees an end face
 (cos near 0).  To spot a pulled block in every layer a phone must see both x ends and y ends at a decent angle,
 which means standing at a corner (about 45 degrees to both faces), not square-on to one face.
 
-    .venv/bin/python camera_coverage.py        (both phones streaming, markers visible)
+    .venv/bin/python tools/camera_coverage.py        (both phones streaming, markers visible)
 """
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), "tracker"))
 import os, sys, urllib.request
 import cv2, numpy as np
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+pass  # tracker path set by the header above
 import face_crops as fc
 import tower_auto as ta
 

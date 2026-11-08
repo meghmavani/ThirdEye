@@ -2,13 +2,14 @@
 """Synthetic-game test of game_events.Analyzer using their ray-cast tower renderer.
 Run:  .venv/bin/python -I test_game_events.py
 """
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), "tracker"))
 import os, sys
 import numpy as np
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(HERE, "third_party", "STEPWISE"))
 sys.path.insert(0, os.path.join(HERE, "third_party", "STEPWISE", "tests"))
-sys.path.insert(0, HERE)
+pass
 
 from synthetic_tower import render, CORNER_A, K          # their test helper
 from thirdeye.perception.tower import DepthView

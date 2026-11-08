@@ -3,18 +3,19 @@
 One-time lens calibration for the Android camera (the iPhone reports its own).
 
 1. Show a checkerboard on the Mac screen:
-       .venv/bin/python calibrate_camera.py --show-board
+       .venv/bin/python tools/calibrate_camera.py --show-board
    No measuring needed: a lens's intrinsics do not depend on the square size.
 
 2. Point the phone at the screen from different distances and angles:
-       .venv/bin/python calibrate_camera.py --url http://127.0.0.1:8000/android_raw.jpg
+       .venv/bin/python tools/calibrate_camera.py --url http://127.0.0.1:8000/android_raw.jpg
    It grabs ~20 views, then writes camera_android.json (fx, fy, cx, cy, distortion).
 """
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), "tracker"))
 import argparse, json, os, sys, time, urllib.request
 import numpy as np
 import cv2
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INNER = (9, 6)          # inner corners: 10 x 7 squares
 
 

@@ -5,7 +5,7 @@ cd "$(dirname "$0")/.."
 pkill -f "iphone_saved.py" 2>/dev/null || true
 pkill -f "thirdeye.server.app" 2>/dev/null || true
 sleep 1
-nohup .venv/bin/python iphone_saved.py > /tmp/game_server.log 2>&1 &
+nohup .venv/bin/python tracker/iphone_saved.py > /tmp/game_server.log 2>&1 &
 nohup scripts/run_thirdeye.sh > /tmp/thirdeye.log 2>&1 &
 sleep 5
 IP=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || echo "<this Mac's IP>")

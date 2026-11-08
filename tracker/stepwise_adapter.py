@@ -14,9 +14,9 @@ Run isolated:  .venv/bin/python -I stepwise_adapter.py [--layers 9] [--min-conf 
 import argparse, collections, glob, os, sys
 import numpy as np
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(HERE, "third_party", "STEPWISE"))
-sys.path.insert(0, HERE)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import tower_points as tp                                   # our calibration
 from thirdeye.perception.tower import DepthView, read_view, merge, STANDARD   # their reader

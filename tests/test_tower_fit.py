@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """tower_fit must recover a known tower position, tilt and height from synthetic LiDAR points.
-    .venv/bin/python test_tower_fit.py"""
+    .venv/bin/python tests/test_tower_fit.py"""
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), "tracker"))
 import numpy as np
 
 import tower_fit as tf

@@ -17,9 +17,9 @@ import argparse, collections, glob, json, os, sys
 from dataclasses import dataclass
 import numpy as np
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(HERE, "third_party", "STEPWISE"))
-sys.path.insert(0, HERE)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from thirdeye.perception.tower import STANDARD, DepthView, EndReading, OCCLUDED_MM
 from thirdeye.events import Slot

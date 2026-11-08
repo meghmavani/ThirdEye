@@ -7,8 +7,9 @@ Unlabelled first look at the face-crop dataset.
   3. cluster view: do the crops fall into natural groups, and what are they?
 
 Run with an environment that has torch (not the repo .venv, whose Python 3.15 has no torch wheels):
-    /Users/mitul/.venvs/jenga-ml/bin/python cluster_crops.py
+    /Users/mitul/.venvs/jenga-ml/bin/python tools/cluster_crops.py
 """
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), "tracker"))
 import collections
 import json
 import os
@@ -20,7 +21,7 @@ import torchvision
 from PIL import Image, ImageDraw
 from sklearn.cluster import KMeans
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(HERE, "dataset")
 SOURCES = sys.argv[1:] or ["game03", "game04"]
 MIN_COS, BODY_LAYERS, REF_SECONDS = 0.35, 10, 8.0

@@ -39,7 +39,7 @@ layer was pulled after each move, and calls **game over** when pieces fall.
 ## Quick start
 ```bash
 scripts/setup.sh                      # venv + dependencies + fetches STEPWISE into third_party/
-.venv/bin/python iphone_saved.py      # server: prints your Mac's IP
+.venv/bin/python tracker/iphone_saved.py      # server: prints your Mac's IP
 ```
 1. Open `lidar-capture.xcodeproj` in Xcode, choose **your own signing team**, run on the iPhone, type the Mac's IP.
    (Rebuild after pulling updates: the app now also streams depth for the loose-block / game-over features.)
@@ -47,10 +47,10 @@ scripts/setup.sh                      # venv + dependencies + fetches STEPWISE i
 3. Android / second camera (Pixel): install the native app in `android-capture/` (see below), type the
    computer's IP, and leave it running on its stand. (The old browser page `https://<mac-ip>:8443/cam` still works;
    accept the certificate warning, the server makes its own certificate in `certs/`.)
-   Calibrate its lens once: `.venv/bin/python calibrate_camera.py --show-board`, then
-   `.venv/bin/python calibrate_camera.py --url http://127.0.0.1:8000/android_raw.jpg`.
+   Calibrate its lens once: `.venv/bin/python tools/calibrate_camera.py --show-board`, then
+   `.venv/bin/python tools/calibrate_camera.py --url http://127.0.0.1:8000/android_raw.jpg`.
    The shipped `camera_android.json` is **for the author's phone** — replace it with your own calibration.
-4. Optional but recommended once per marker mat: `.venv/bin/python calibrate_markers.py` measures where your markers
+4. Optional but recommended once per marker mat: `.venv/bin/python tools/calibrate_markers.py` measures where your markers
    really are and writes `marker_map.json` (setup-specific, not in the repo). Without it the nominal layout is used.
 
 ## Playing a game
@@ -74,10 +74,10 @@ scripts/setup.sh                      # venv + dependencies + fetches STEPWISE i
 
 ## Tests
 ```bash
-.venv/bin/python test_jenga_rules.py     # the pull rules, hand-worked cases (no data needed)
-.venv/bin/python test_game_events.py     # synthetic game for the tracker
+.venv/bin/python tests/test_jenga_rules.py     # the pull rules, hand-worked cases (no data needed)
+.venv/bin/python tests/test_game_events.py     # synthetic game for the tracker
 ```
-`test_loose_replay.py` and `test_height_replay.py` replay recorded depth frames and need recordings that are not in this repo.
+`tests/test_loose_replay.py` and `tests/test_height_replay.py` replay recorded depth frames and need recordings that are not in this repo.
 
 ## Android app (`android-capture/`)
 Kotlin port of the iPhone app for the Pixel, without LiDAR: it streams 1280×720 JPEGs at up to 60 fps over Wi-Fi to
@@ -95,23 +95,32 @@ The lens calibration in `camera_android.json` was made at 1280×720 through Chro
 `calibrate_camera.py --url http://127.0.0.1:8000/android_raw.jpg` again while the app is streaming.
 
 ## Layout
+```
+tracker/       the game server and everything it imports (run: .venv/bin/python tracker/iphone_saved.py)
+tools/         one-off tools: lens / board calibration, crop extraction, scoring, coverage advice
+tests/         unit tests and recorded-game replays
+benchmarks/    height and pose baselines (need recordings that are not in this repo)
+experiments/   early mesh reconstruction and unlabelled-data reports (superseded)
+lidar-capture/ iOS app          android-capture/ Android app
+scripts/       setup, start_all, wired mode      patches/ our changes to Aadit's Third Eye UI
+docs/          paper, presentation, analysis, figures
+```
 | File | Purpose |
 |---|---|
-| `iphone_saved.py` | Upload server + live viewer + overlay + data capture + layer-finder job + loose/game-over watch |
-| `lidar-capture/` | iOS app (capture, preview + depth stream, remote START/STOP/MARK) |
-| `android-capture/` | Android (Pixel) second-camera app, Kotlin + CameraX |
-| `jenga_rules.py`, `test_jenga_rules.py` | Red/green pull rules and their tests |
-| `move_infer.py`, `label_eval.py` | Which layer was pulled (before/after of a MARK) and scoring against `labels.jsonl` |
-| `tower_points.py` | Marker layout, pose solver (tries many starts when only 3 markers are visible), LiDAR-into-tower-frame |
-| `tower_auto.py`, `calibrate_markers.py` | Layer count / direction from two cameras; measured marker positions |
-| `depth_protrusion.py` | LiDAR face offsets: loose blocks and tower height |
-| `face_crops.py`, `extract_crops.py` | Face-crop dataset (`dataset/`, not in the repo); crops follow the tower's real height |
-| `game_events.py`, `live_tracker.py`, `rgb_cue.py`, `stepwise_adapter.py` | Earlier per-slot reader and live tracker |
-| `cluster_crops.py`, `camera_coverage.py` | Unlabelled-data analysis (needs torch for the embedding ones) and best-view advice |
-| `calibrate_camera.py`, `android_cam.py` | Second-camera lens calibration / app-free capture |
-| `experiments/` | Early mesh-reconstruction (`fuse_scan`, `tsdf_fuse`, `refined_fuse`, `process_scan`) and unlabelled-data reports (`tap_report`, `geo_report`, `align_report`); superseded, run from the repo root as `python experiments/<name>.py` |
-| `benchmarks/` | `benchmark_height.py` (height baselines) and `benchmark_pose.py` (overlay pose); need recordings that are not in this repo |
-| `docs/paper/`, `docs/analysis/` | Course paper (PDF + LaTeX), presentation, and the qualitative / quantitative analysis |
+| `tracker/iphone_saved.py` | Upload server + live viewer + overlay + data capture + layer-finder job + loose/game-over watch |
+| `tracker/jenga_rules.py` | Red/green pull rules |
+| `tracker/move_infer.py`, `tools/label_eval.py` | Which layer was pulled (before/after of a MARK) and scoring against `labels.jsonl` |
+| `tracker/tower_points.py` | Marker layout, pose solver (tries many starts when only 3 markers are visible), LiDAR-into-tower-frame |
+| `tracker/tower_fit.py`, `tower_edges.py` | LiDAR box fit of the real tower; per-camera edge snapping |
+| `tracker/tower_auto.py`, `calibrate_markers.py` | Layer count / direction from two cameras; measured marker positions |
+| `tracker/depth_protrusion.py` | LiDAR face offsets: loose blocks and tower height |
+| `tracker/face_crops.py`, `crop_worker.py`, `tools/extract_crops.py` | Face-crop dataset (`dataset/`, not in the repo); crops follow the tower's real height |
+| `tracker/game_events.py`, `live_tracker.py`, `rgb_cue.py`, `stepwise_adapter.py` | Earlier per-slot reader and live tracker |
+| `tools/cluster_crops.py`, `camera_coverage.py` | Unlabelled-data analysis (needs torch for the embedding ones) and best-view advice |
+| `tools/calibrate_camera.py`, `calibrate_board.py`, `android_cam.py` | Lens calibration, one-time board calibration, app-free capture |
+| `docs/paper/`, `docs/analysis/` | Course paper (PDF + LaTeX), presentation, qualitative / quantitative analysis |
+
+Runtime data stays at the repo root and is git-ignored: `iphone_saved/` (frames), `dataset/`, `marker_map.json`, `certs/`.
 
 ## Third Eye UI (Aadit's repo + our game console)
 
@@ -128,7 +137,7 @@ The Game tab talks to our server through his server's `/game/...` proxy (`thirde
 allow-list of paths, one fixed address). Press **Judge this game with Third Eye rules** to open his Live tab on the
 same game. His LLM features need a key in `third_party/STEPWISE/.env` (e.g. `GROQ_API_KEY=...`).
 
-**The overlay fits the real tower.** `tower_fit.py` lines a 75 x 75 mm model of the tower (and the board under it) up with
+**The overlay fits the real tower.** `tracker/tower_fit.py` lines a 75 x 75 mm model of the tower (and the board under it) up with
 the iPhone's LiDAR points every half second and folds the result into the pose that every overlay, face crop and depth
 check uses (`tower_points.set_correction`): the tower's real position, tilt and twist, and its height. It settles in about
 3 seconds after the app starts streaming depth; **Re-detect** refits from scratch and sets the layer count from the height

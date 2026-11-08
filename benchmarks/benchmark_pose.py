@@ -4,7 +4,9 @@ Metric (independent of the LiDAR): mean edge strength under the tower's visible 
  P0 markers only | P1 markers + LiDAR box-fit correction (median over the run's first frames) | P2 + per-frame edge snapping
     .venv/bin/python benchmarks/benchmark_pose.py"""
 import glob, json, os, sys
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+_R = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+for _d in ("tests", "tracker"):
+    sys.path.insert(0, os.path.join(_R, _d))
 os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import numpy as np
 import tower_points as tp, tower_fit as tf, tower_edges as te

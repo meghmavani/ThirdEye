@@ -8,8 +8,8 @@ median over many frames.  The two cameras see different subsets, so their maps a
 the markers they both see (a 2-D rigid fit).  The result is turned into the tower frame (origin = middle of the
 ring, +x along ID1 -> ID2) and written to marker_map.json, which tower_points.py then uses.
 
-    .venv/bin/python calibrate_markers.py            # live: both phones streaming to the viewer server
-    .venv/bin/python calibrate_markers.py --frames 20
+    .venv/bin/python tracker/calibrate_markers.py            # live: both phones streaming to the viewer server
+    .venv/bin/python tracker/calibrate_markers.py --frames 20
 """
 import argparse
 import itertools
@@ -22,8 +22,8 @@ import urllib.request
 import cv2
 import numpy as np
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import face_crops as fc
 
 SERVER = "http://127.0.0.1:8000"

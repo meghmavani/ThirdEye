@@ -16,7 +16,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-SAVE_DIR = os.environ.get("LIDAR_SAVE_DIR", os.path.join(os.path.dirname(os.path.abspath(__file__)), "iphone_saved"))
+SAVE_DIR = os.environ.get("LIDAR_SAVE_DIR", os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "iphone_saved"))
 MARKER_MM = 40.0
 HALF = float(os.environ.get("MARKER_HALF", 80.0))  # half the marker spacing (mm): 80 = current mat (~160 mm); 91 = games 03/04
 LAYOUTS = {   # IDs run around the square; A = counter-clockwise from above, B = clockwise
@@ -28,7 +28,7 @@ LAYOUTS = {   # IDs run around the square; A = counter-clockwise from above, B =
 MARKER_YAW = {}      # id -> degrees; filled from marker_map.json (measured orientation of each marker)
 TOWER_ROT = 0        # the tower frame is turned by -90 degrees this many times (so layer 0 runs along x)
 _BASE = None         # (positions, yaws) of the markers before any such turn
-_MAP_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "marker_map.json")
+_MAP_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "marker_map.json")
 
 
 CORNERS = {}         # id -> 4x3 corners (tower frame, mm) from calibrate_board.py; empty = flat squares from the layout
@@ -352,7 +352,7 @@ def main():
             ax_k = -37.5, 75
             a.add_patch(plt.Rectangle((-37.5, 0), 75, 270, fill=False, ec="r", lw=1.5))
     plt.tight_layout()
-    out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tower_check.png")
+    out = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tower_check.png")
     plt.savefig(out, dpi=90)
     print("saved", out)
 

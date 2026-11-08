@@ -3,11 +3,12 @@
 Second camera (no LiDAR): pull frames from an Android phone running "IP Webcam" and
 save them next to the iPhone capture, only while the iPhone is recording.
 
-    .venv/bin/python android_cam.py --url http://192.168.0.77:8080/shot.jpg
+    .venv/bin/python tools/android_cam.py --url http://192.168.0.77:8080/shot.jpg
 
 Files:  iphone_saved/<ms>_android.jpg      (ms = this Mac's clock; the phones are on network time)
         iphone_saved/android_info.json     (image size, and intrinsics once calibrated)
 """
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), "tracker"))
 import argparse, json, os, sys, time, urllib.request
 import numpy as np
 import cv2
@@ -24,10 +25,10 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--url", required=True, help="IP Webcam still URL, e.g. http://192.168.0.77:8080/shot.jpg")
     ap.add_argument("--server", default="http://127.0.0.1:8000", help="the iPhone viewer server")
-    ap.add_argument("--out", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "iphone_saved"))
+    ap.add_argument("--out", default=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "iphone_saved"))
     ap.add_argument("--fps", type=float, default=3.0)
     ap.add_argument("--always", action="store_true", help="save even when the iPhone is not recording")
-    ap.add_argument("--calib", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "camera_android.json"))
+    ap.add_argument("--calib", default=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "camera_android.json"))
     args = ap.parse_args()
 
     os.makedirs(args.out, exist_ok=True)

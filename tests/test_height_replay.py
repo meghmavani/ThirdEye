@@ -2,9 +2,10 @@
 """
 Replays a recorded game's depth frames through the server's LiDAR tower fit and height watch, the way the live
 server does: marker pose -> pose lock (raw marker frame) -> depth -> fit the real tower -> game over if the top drops.
-    .venv/bin/python test_height_replay.py live_20261020_170044 [every_nth_frame]
+    .venv/bin/python tests/test_height_replay.py live_20261020_170044 [every_nth_frame]
 Needs the recordings in iphone_saved/ and the run's dataset folder (for the time range).
 """
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), "tracker"))
 import glob
 import json
 import os

@@ -2,14 +2,15 @@
 """
 Turn recorded folders into the face-crop dataset.
 
-    .venv/bin/python extract_crops.py --src game_04 --name game04
-    .venv/bin/python extract_crops.py --src iphone_saved --name game03 --session 879F4984
+    .venv/bin/python tools/extract_crops.py --src game_04 --name game04
+    .venv/bin/python tools/extract_crops.py --src iphone_saved --name game03 --session 879F4984
 
 Writes dataset/<name>/{iphone,android}/*.jpg, index.jsonl and marks.json.
 """
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), "tracker"))
 import argparse, glob, json, os, sys
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+pass
 import face_crops as fc
 
 

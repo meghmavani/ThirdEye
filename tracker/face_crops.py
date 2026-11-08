@@ -16,8 +16,8 @@ import sys
 import cv2
 import numpy as np
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 HALF, WIDTH, HEIGHT = 37.5, 25.0, 15.0
 OUT_W, OUT_H = 100, 60
@@ -222,7 +222,7 @@ class CropPool:
 
     def __init__(self, n=3):
         import subprocess
-        self.procs = [subprocess.Popen([sys.executable, os.path.join(HERE, "crop_worker.py")], stdin=subprocess.PIPE,
+        self.procs = [subprocess.Popen([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), "crop_worker.py")], stdin=subprocess.PIPE,
                                        stdout=subprocess.PIPE, text=True, bufsize=1) for _ in range(max(1, n))]
 
     def _batch(self, proc, jobs):

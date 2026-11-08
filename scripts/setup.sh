@@ -33,5 +33,5 @@ fi
 if command -v npm >/dev/null 2>&1; then
   (cd third_party/STEPWISE/web && npm ci --ignore-scripts && npm run build)
 fi
-echo "Done. Start our game server:  .venv/bin/python iphone_saved.py"
+echo "Done. Start our game server:  .venv/bin/python tracker/iphone_saved.py"
 echo "      Start Third Eye on top of it:  scripts/run_thirdeye.sh   (UI on http://127.0.0.1:8001)"

@@ -8,8 +8,8 @@ Upload server + live viewer for the LiDAR capture app.
   GET  /preview.jpg, /status.json
 
 Run with the project venv to get the marker overlay (conda's OpenCV is broken):
-    .venv/bin/python iphone_saved.py
-Plain `python3 iphone_saved.py` still works, without the overlay.
+    .venv/bin/python tracker/iphone_saved.py
+Plain `python3 tracker/iphone_saved.py` still works, without the overlay.
 """
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 import collections
@@ -32,11 +32,11 @@ try:
 except Exception:
     HAVE_CV = False
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _OLD_MAC_DIR = "/Users/mitul/Desktop/lidar-capture/iphone_saved"   # kept so existing Mac setups don't move
 SAVE_DIR = os.environ.get("LIDAR_SAVE_DIR") or (
     _OLD_MAC_DIR if os.path.isdir(_OLD_MAC_DIR) else os.path.join(HERE, "iphone_saved"))
-sys.path.insert(0, HERE)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 try:
     import tower_points as _tp          # marker layout + pose solver
     _tp.SAVE_DIR = SAVE_DIR
@@ -2687,7 +2687,7 @@ class TLSThreadingServer(ThreadingHTTPServer):
 
 def _ensure_cert(ip):
     """Self-signed certificate for the Mac's IP, so phone browsers allow camera access."""
-    d = os.path.join(os.path.dirname(os.path.abspath(__file__)), "certs")
+    d = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "certs")
     os.makedirs(d, exist_ok=True)
     cert, key, stamp = (os.path.join(d, n) for n in ("cert.pem", "key.pem", "ip.txt"))
     if os.path.exists(cert) and os.path.exists(key) and os.path.exists(stamp) and open(stamp).read() == ip:
@@ -2739,7 +2739,7 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"ℹ️  HTTPS camera page unavailable: {e}")
         if not HAVE_CV:
-            print("ℹ️  Marker overlay is off. Start with .venv/bin/python iphone_saved.py to enable it.")
+            print("ℹ️  Marker overlay is off. Start with .venv/bin/python tracker/iphone_saved.py to enable it.")
         server.serve_forever()
     except KeyboardInterrupt:
         print("\n👋 Server stopped")

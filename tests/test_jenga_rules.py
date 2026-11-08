@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Checks the pull rules against cases worked out by hand.   .venv/bin/python test_jenga_rules.py"""
+"""Checks the pull rules against cases worked out by hand.   .venv/bin/python tests/test_jenga_rules.py"""
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), "tracker"))
 from jenga_rules import removable
 import jenga_rules as jr
 
