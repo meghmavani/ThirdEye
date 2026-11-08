@@ -14,7 +14,7 @@ import json
 import numpy as np
 import open3d as o3d
 
-SAVE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "iphone_saved")
+SAVE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "iphone_saved")
 
 # ARKit camera-local convention (X right, Y up, Z backward) -> OpenCV/Open3D
 # convention (X right, Y down, Z forward) that TSDF integration expects.

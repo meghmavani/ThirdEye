@@ -20,7 +20,7 @@ import torch
 import torchvision
 from PIL import Image
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(HERE, "dataset")
 RUN = sys.argv[1]
 REF_SECONDS = float(sys.argv[2]) if len(sys.argv) > 2 else 8.0

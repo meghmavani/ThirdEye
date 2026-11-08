@@ -107,9 +107,11 @@ The lens calibration in `camera_android.json` was made at 1280×720 through Chro
 | `depth_protrusion.py` | LiDAR face offsets: loose blocks and tower height |
 | `face_crops.py`, `extract_crops.py` | Face-crop dataset (`dataset/`, not in the repo); crops follow the tower's real height |
 | `game_events.py`, `live_tracker.py`, `rgb_cue.py`, `stepwise_adapter.py` | Earlier per-slot reader and live tracker |
-| `tap_report.py`, `geo_report.py`, `align_report.py`, `cluster_crops.py`, `camera_coverage.py` | Unlabelled-data analysis (needs torch for the embedding ones) and best-view advice |
+| `cluster_crops.py`, `camera_coverage.py` | Unlabelled-data analysis (needs torch for the embedding ones) and best-view advice |
 | `calibrate_camera.py`, `android_cam.py` | Second-camera lens calibration / app-free capture |
-| `fuse_scan.py`, `tsdf_fuse.py`, `refined_fuse.py`, `process_scan.py` | Early mesh-reconstruction experiments (superseded) |
+| `experiments/` | Early mesh-reconstruction (`fuse_scan`, `tsdf_fuse`, `refined_fuse`, `process_scan`) and unlabelled-data reports (`tap_report`, `geo_report`, `align_report`); superseded, run from the repo root as `python experiments/<name>.py` |
+| `benchmarks/` | `benchmark_height.py` (height baselines) and `benchmark_pose.py` (overlay pose); need recordings that are not in this repo |
+| `docs/paper/`, `docs/analysis/` | Course paper (PDF + LaTeX), presentation, and the qualitative / quantitative analysis |
 
 ## Third Eye UI (Aadit's repo + our game console)
 
@@ -154,6 +156,6 @@ Optional. The phones work over Wi-Fi exactly as before; with a cable the picture
 * Recordings and the dataset are deliberately not in this repo (large; they show people). `docs/` has tower-only figures.
 * Tower orientation matters: the marker frame is turned so the bottom layer runs along x
   (`tower_points.py`, `LAYOUTS["A"]`). A different build orientation needs that one table changed.
-* `tap_report.py` (ResNet18 / DINOv2 fingerprints) needs `torch`, `torchvision`, `transformers`; the rest does not.
+* `experiments/tap_report.py` (ResNet18 / DINOv2 fingerprints) needs `torch`, `torchvision`, `transformers`; the rest does not.
 * Depth reader and tower geometry come from **STEPWISE / ThirdEye** by Aadit Pani
   (https://github.com/AaditPani-RVU/STEPWISE), fetched by the setup script, not copied here.

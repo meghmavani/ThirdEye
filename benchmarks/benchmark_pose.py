@@ -2,8 +2,10 @@
 """Does the LiDAR tower fit put the overlay on the real tower better than the markers alone?
 Metric (independent of the LiDAR): mean edge strength under the tower's visible edges projected into the RGB image (higher = better).
  P0 markers only | P1 markers + LiDAR box-fit correction (median over the run's first frames) | P2 + per-frame edge snapping
-    .venv/bin/python benchmark_pose.py"""
-import glob, json, os
+    .venv/bin/python benchmarks/benchmark_pose.py"""
+import glob, json, os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import numpy as np
 import tower_points as tp, tower_fit as tf, tower_edges as te
 

@@ -36,3 +36,6 @@ build/
 /cluster_montage.png
 /l1_check.png
 /top_check.png
+
+# local clutter (moved here by the repo clean-up)
+/scratch/

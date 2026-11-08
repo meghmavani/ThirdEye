@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Height-estimation baselines on recorded LiDAR frames (before the first pull, so the true layer count is the typed one)
-and on a synthetic hand-in-view stress test.     .venv/bin/python benchmark_height.py"""
-import glob, json, os, sys, time
+and on a synthetic hand-in-view stress test.     .venv/bin/python benchmarks/benchmark_height.py"""
+import glob, json, os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), sys, time
 import numpy as np
 import tower_points as tp, tower_fit as tf
 

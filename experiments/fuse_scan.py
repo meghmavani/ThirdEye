@@ -16,7 +16,7 @@ import json
 import numpy as np
 import open3d as o3d
 
-SAVE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "iphone_saved")
+SAVE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "iphone_saved")
 
 
 def list_timestamps():
