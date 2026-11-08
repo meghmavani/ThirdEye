@@ -15,7 +15,7 @@ Counts were rebuilt from the paper's Table 2 percentages and denominators, so th
 | Both, product rule | 81% (25) | 64–91% | 94% (29) | 79–98% | 31 |
 
 - **iPhone vs Android is the one reliable difference.** The intervals only just overlap (62–90 vs 36–70), so Android alone is probably worse.
-- **Mean vs product rule (77% vs 81%) is not a real difference.** That's one pull out of 31, and the product rule was chosen after seeing the data.
+- **Mean vs product rule (77% vs 81%) is not a real difference.** That's one pull out of 31, and the product rule was chosen after seeing the data. The product rule exists only in `benchmarks/finder_variants/eval_variants.py`; the server uses the mean. A weighted variant tested the same as the mean (24/31). An earlier 57-pull set (older labels) had Android ahead of iPhone, so the iPhone-vs-Android gap is not robust either.
 - **The 31 pulls are not independent:** they come from 10 games, and labels are partly "not corrected, so assumed right". All intervals are optimistic.
 - Replay of the current server: 5 of 5 moves reached 95% in one 8-layer game, and 6 of 10 in another. Older 16-layer games: 1 of 7.
 

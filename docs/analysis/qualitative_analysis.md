@@ -14,7 +14,7 @@ Evidence is marked **[measured]** (a script in the repo, with its numbers), **[o
 
 | Failure | What we saw | Cause | Status |
 |---|---|---|---|
-| iPhone and Android disagree on the layer | Android 53% vs iPhone 79% alone **[measured]** | Android view is lower and more oblique, so faces are smaller and more occluded by neighbouring blocks | Mitigated by weighting; not fixed |
+| iPhone and Android disagree on the layer | Android 53% vs iPhone 79% alone **[measured]** | Android view is lower and more oblique, so faces are smaller and more occluded by neighbouring blocks | Combined by an unweighted mean of the two cameras' scores (a weighted variant gave the same 24/31); not fixed |
 | Layer finder worse on tall towers | Old 16-layer games 1/7 **[measured]** | 32×32 face crops of adjacent layers look almost identical at that resolution | Current games use 7–10 layers |
 | Lens covered by a hand | Looked like a fall, because the depth showed a close blob **[observed]** | Fall check could not tell a covered lens from a collapsed tower | Fixed with a covered-lens guard and a corroborating p95 drop; checked in replay only, not with a real hand **[open]** |
 | Three visible markers | Several different poses fit the marker centres exactly, so the solver could land on the wrong one **[observed]** | Perspective ambiguity at a low camera angle | Fixed by trying many starting views and letting the corners decide |

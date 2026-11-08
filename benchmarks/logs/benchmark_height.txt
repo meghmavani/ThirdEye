@@ -1,0 +1,17 @@
+# benchmark_height.py output, run 2026-11-07. Transcribed from the terminal output (the original output file was in a temp folder that was cleaned).
+# The 2557 ms time for method D was a one-off slowdown; re-timed alone D takes about 55 ms, the same as B and C.
+  run 20261102_133032: 8 layers, 38 usable frames
+  run 20261106_092828: 7 layers, 151 usable frames
+  run 20261106_093055: 7 layers, 44 usable frames
+
+REAL FRAMES (hand-free, before the first pull; error = estimated - typed layers)
+A  98th-percentile of z (no fit)           n=233  exact   98%  within 1 layer  100%  MAE 0.02 layers  bias +0.02  no-fit 0  1 ms
+B  box fit, plain least squares            n=233  exact   88%  within 1 layer  100%  MAE 0.12 layers  bias +0.10  no-fit 0  51 ms
+C  box fit, robust, single scale 30 mm     n=233  exact   88%  within 1 layer  100%  MAE 0.13 layers  bias +0.13  no-fit 0  51 ms
+D  box fit, robust, 30->5 mm (ours)        n=233  exact   88%  within 1 layer  100%  MAE 0.13 layers  bias +0.13  no-fit 0  2557 ms
+
+SYNTHETIC: 12-layer tower, 1 mm noise, a hand blob near the tower (fraction of near points replaced)
+  hand fraction  0%: A 0.32  B 0.00  C 0.00  D 0.00   (mean |height error| in layers)
+  hand fraction 10%: A 0.71  B 0.31  C 0.23  D 0.19   (mean |height error| in layers)
+  hand fraction 25%: A 0.88  B 0.63  C 0.61  D 0.69   (mean |height error| in layers)
+  hand fraction 40%: A 1.18  B 0.61  C 0.65  D 0.63   (mean |height error| in layers)

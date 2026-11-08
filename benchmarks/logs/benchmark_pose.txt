@@ -1,0 +1,10 @@
+# benchmark_pose.py output, run 2026-11-07. Transcribed from the terminal output (the original file was in a temp folder that was cleaned).
+run 20261102_133032: 8 layers, 75 frames; LiDAR correction shift [-10.4  -7.4  -0.3] mm, tilt 7.05 deg
+run 20261106_092828: 7 layers, 300 frames; LiDAR correction shift [-4.6  0.9 -1.5] mm, tilt 2.80 deg
+run 20261106_093055: 7 layers, 87 frames; LiDAR correction shift [-4.8  1.  -1.7] mm, tilt 2.21 deg
+
+edge strength under the projected tower edges (iPhone frames, hand-free)
+  markers only                       n=75  mean 3.07  median 3.18
+  markers + LiDAR fit                n=75  mean 2.95  median 2.86
+  markers + LiDAR + edge snapping    n=75  mean 8.76  median 8.80
+  LiDAR fit better than markers on 41% of frames; edge snapping better than fit on 100%
