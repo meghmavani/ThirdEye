@@ -50,7 +50,7 @@ scripts/setup.sh                      # venv + dependencies + fetches STEPWISE i
    Calibrate its lens once: `.venv/bin/python tools/calibrate_camera.py --show-board`, then
    `.venv/bin/python tools/calibrate_camera.py --url http://127.0.0.1:8000/android_raw.jpg`.
    The shipped `camera_android.json` is **for the author's phone** — replace it with your own calibration.
-4. Optional but recommended once per marker mat: `.venv/bin/python tools/calibrate_markers.py` measures where your markers
+4. Optional but recommended once per marker mat: `.venv/bin/python tracker/calibrate_markers.py` measures where your markers
    really are and writes `marker_map.json` (setup-specific, not in the repo). Without it the nominal layout is used.
 
 ## Playing a game
